@@ -1,3 +1,5 @@
+# warning!! incomplete fork. This was a sloppified AI fork from this [project](https://github.com/KevinVandy/mantine-react-table). Consider this as just a very work in progress unpolished project
+
 # Mantine React Table
 
 View the [Docs Site](https://www.mantine-react-table.com/)
