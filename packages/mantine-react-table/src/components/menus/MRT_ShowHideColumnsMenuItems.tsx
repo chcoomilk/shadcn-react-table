@@ -10,12 +10,6 @@ import {
   useState,
 } from 'react';
 
-import { MRT_Box } from '../mrt/MRT_Box';
-import { DropdownMenuItem } from '../ui/dropdown-menu';
-import { Label } from '../ui/label';
-import { Switch } from '../ui/switch';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-
 import { useMRTCompatibleTheme } from '../../lib/mrt-theme';
 import {
   type MRT_CellValue,
@@ -27,6 +21,11 @@ import { reorderColumn } from '../../utils/column.utils';
 import { dataVariable, getPrimaryColor } from '../../utils/style.utils';
 import { MRT_ColumnPinningButtons } from '../buttons/MRT_ColumnPinningButtons';
 import { MRT_GrabHandleButton } from '../buttons/MRT_GrabHandleButton';
+import { MRT_Box } from '../mrt/MRT_Box';
+import { DropdownMenuItem } from '../ui/dropdown-menu';
+import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 interface Props<TData extends MRT_RowData, TValue = MRT_CellValue> {
   allColumns: MRT_Column<TData>[];
