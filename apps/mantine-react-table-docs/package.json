@@ -32,7 +32,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "export-to-csv": "^1.4.0",
-    "jspdf": "^2.5.2",
+    "jspdf": "^4.2.1",
     "jspdf-autotable": "^3.8.3",
     "mantine-react-table": "workspace:*",
     "next": "14.2.15",
