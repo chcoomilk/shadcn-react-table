@@ -15,7 +15,7 @@ export const getPrimaryColor = (
   shade?: MantineShade,
 ): string =>
   theme.colors[theme.primaryColor]?.[shade ?? getPrimaryShade(theme)] ??
-  'hsl(var(--primary))';
+  'var(--primary)';
 
 /** Stripe hover: adjust a CSS color string (hex/rgb/hsl). */
 export function adjustStripeHoverColor(

@@ -39,16 +39,16 @@ export const MRT_ProgressBar = <TData extends MRT_RowData>({
     <div
       className={clsx(
         classes.collapse,
-        'overflow-hidden transition-all duration-200',
+        'overflow-hidden',
         isTopToolbar && classes['collapse-top'],
       )}
     >
       <Progress
         aria-busy="true"
         aria-label="Loading"
-        value={100}
+        value="indeterminate"
         {...linearProgressProps}
-        className={clsx("h-1 rounded-none shimmer", linearProgressProps?.className)}
+        className={clsx("h-1 rounded-none", linearProgressProps?.className)}
       />
     </div>
   );

@@ -3,22 +3,21 @@ import { Preview } from '@storybook/react';
 
 import '../src/globals.css';
 
-/** HSL triplets (no `hsl()` wrapper) — match theme tokens in `globals.css` where possible */
-const PRIMARY_HSL_BY_NAME: Record<string, string> = {
-  blue: '221.2 83.2% 53.3%',
-  cyan: '188.7 94.5% 42.7%',
-  dark: '0 0% 25%',
-  grape: '302 59% 45%',
-  gray: '220 9% 46%',
-  green: '142 71% 45%',
-  indigo: '239 84% 67%',
-  lime: '81 85% 43%',
-  orange: '24 94% 53%',
-  pink: '330 81% 60%',
-  red: '0 72% 51%',
-  teal: '173 58% 39%',
-  violet: '263 70% 50%',
-  yellow: '45 93% 47%',
+const PRIMARY_BY_NAME: Record<string, string> = {
+  blue: 'hsl(221.2 83.2% 53.3%)',
+  cyan: 'hsl(188.7 94.5% 42.7%)',
+  dark: 'hsl(0 0% 25%)',
+  grape: 'hsl(302 59% 45%)',
+  gray: 'hsl(220 9% 46%)',
+  green: 'hsl(142 71% 45%)',
+  indigo: 'hsl(239 84% 67%)',
+  lime: 'hsl(81 85% 43%)',
+  orange: 'hsl(24 94% 53%)',
+  pink: 'hsl(330 81% 60%)',
+  red: 'hsl(0 72% 51%)',
+  teal: 'hsl(173 58% 39%)',
+  violet: 'hsl(263 70% 50%)',
+  yellow: 'hsl(45 93% 47%)',
 };
 
 /**
@@ -64,7 +63,7 @@ function StorybookChrome({
   }, [isDark]);
 
   useEffect(() => {
-    const hsl = PRIMARY_HSL_BY_NAME[primaryColor] ?? PRIMARY_HSL_BY_NAME.blue;
+    const hsl = PRIMARY_BY_NAME[primaryColor] ?? PRIMARY_BY_NAME.blue;
     document.documentElement.style.setProperty('--primary', hsl);
   }, [primaryColor]);
 
@@ -113,7 +112,7 @@ function StorybookChrome({
             onChange={(e) => setPrimaryColor(e.target.value)}
             value={primaryColor}
           >
-            {Object.keys(PRIMARY_HSL_BY_NAME).map((name) => (
+            {Object.keys(PRIMARY_BY_NAME).map((name) => (
               <option key={name} value={name}>
                 {name}
               </option>

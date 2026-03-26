@@ -52,7 +52,7 @@ export const MRT_TablePaper = <TData extends MRT_RowData>({
     <Card
       {...tablePaperProps}
       className={clsx(
-        'mrt-table-paper rounded-md border shadow-sm',
+        'mrt-table-paper rounded-md border shadow-xs',
         classes.root,
         isFullScreen && 'mrt-table-paper-fullscreen',
         tablePaperProps?.className,

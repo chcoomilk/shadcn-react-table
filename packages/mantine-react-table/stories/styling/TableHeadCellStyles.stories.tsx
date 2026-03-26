@@ -63,7 +63,7 @@ export const StyleTableHeadCellsIndividually = () => (
         accessorKey: 'lastName',
         header: 'Last Name',
         mantineTableHeadCellProps: {
-          style: { color: 'hsl(var(--primary))' },
+          style: { color: 'var(--primary)' },
         },
       },
       {

@@ -1,189 +1,246 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "tw-shimmer";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  color-scheme: light;
+
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(222.2 84% 4.9%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(222.2 84% 4.9%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(222.2 84% 4.9%);
+  --primary: hsl(221.2 83.2% 53.3%);
+  --primary-foreground: hsl(210 40% 98%);
+  --secondary: hsl(210 40% 96.1%);
+  --secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --muted: hsl(210 40% 96.1%);
+  --muted-foreground: hsl(215.4 16.3% 46.9%);
+  --accent: hsl(210 40% 96.1%);
+  --accent-foreground: hsl(222.2 47.4% 11.2%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(210 40% 98%);
+  --border: hsl(214.3 31.8% 91.4%);
+  --input: hsl(214.3 31.8% 91.4%);
+  --ring: hsl(221.2 83.2% 53.3%);
+  --radius: 0.5rem;
+
+  /* Mantine compatibility variables */
+  --mantine-scale: 1;
+  --mantine-color-body: var(--background);
+  --mantine-color-dimmed: var(--muted-foreground);
+  --mantine-color-bright: var(--foreground);
+  --mantine-color-black: #000;
+  --mantine-color-placeholder: var(--muted-foreground);
+  --mantine-color-gray-1: #f1f3f5;
+  --mantine-color-gray-3: #dee2e6;
+  --mantine-color-gray-7: #495057;
+  --mantine-color-gray-outline: #dee2e6;
+  --mantine-color-dark-4: #373a40;
+  --mantine-color-dark-6: #25262b;
+  --mantine-color-dark-outline: #373a40;
+  --mantine-primary-color-filled: var(--primary);
+  --mantine-primary-color-filled-hover: color-mix(
+    in srgb,
+    var(--primary) 85%,
+    transparent
+  );
+  --mantine-primary-color-light: color-mix(
+    in srgb,
+    var(--primary) 15%,
+    transparent
+  );
+  --mantine-primary-color-light-hover: color-mix(
+    in srgb,
+    var(--primary) 20%,
+    transparent
+  );
+  --mantine-spacing-xs: 0.625rem;
+  --mantine-spacing-sm: 0.75rem;
+  --mantine-spacing-md: 1rem;
+  --mantine-spacing-lg: 1.25rem;
+  --mantine-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+  --mantine-font-size-xl: 1.25rem;
+
+  /* MRT base background */
+  --mrt-base-background-color: var(--background);
+
+  /* MRT striped rows (light: darken 5%) */
+  --mrt-striped-row-background-color: color-mix(
+    in srgb,
+    var(--mrt-base-background-color) 95%,
+    black
+  );
+  /* MRT row hover (light: darken 8%) */
+  --mrt-row-hover-background-color: color-mix(
+    in srgb,
+    var(--mrt-base-background-color) 92%,
+    black
+  );
+  --mrt-striped-row-hover-background-color: color-mix(
+    in srgb,
+    var(--mrt-striped-row-background-color) 88%,
+    black
+  );
+
+  /* MRT selection (alpha of primary-light at 80%) */
+  --mrt-selected-row-background-color: color-mix(
+    in srgb,
+    var(--mantine-primary-color-light) 80%,
+    transparent
+  );
+  --mrt-selected-row-hover-background-color: color-mix(
+    in srgb,
+    var(--mantine-primary-color-light-hover) 95%,
+    black
+  );
+
+  /* MRT row/column pinning */
+  --mrt-pinned-row-background-color: var(
+    --mrt-selected-row-background-color
+  );
+  --mrt-pinned-row-hover-background-color: var(
+    --mrt-selected-row-hover-background-color
+  );
+  --mrt-pinned-column-background-color: color-mix(
+    in srgb,
+    var(--mrt-base-background-color) 99%,
+    black
+  );
+
+  /* MRT borders for drag/resize */
+  --mrt-dragging-hovered-border-color: var(--mantine-primary-color-filled);
+  --mrt-dragging-drag-border-color: var(--mantine-color-gray-7);
+  --mrt-resize-column-border-color: var(--mantine-primary-color-filled);
+
+  /* Resolved light-dark variables (light mode values) */
+  --mrt-pinned-shadow-color: var(--mantine-color-gray-outline);
+  --mrt-border-color: var(--mantine-color-gray-3);
+  --mrt-border-color-alt: var(--mantine-color-gray-3);
+  --mrt-ai-hover-bg: var(--mantine-color-gray-1);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: hsl(222.2 84% 4.9%);
+  --foreground: hsl(210 40% 98%);
+  --card: hsl(222.2 84% 4.9%);
+  --card-foreground: hsl(210 40% 98%);
+  --popover: hsl(222.2 84% 4.9%);
+  --popover-foreground: hsl(210 40% 98%);
+  --primary: hsl(217.2 91.2% 59.8%);
+  --primary-foreground: hsl(222.2 47.4% 11.2%);
+  --secondary: hsl(217.2 32.6% 17.5%);
+  --secondary-foreground: hsl(210 40% 98%);
+  --muted: hsl(217.2 32.6% 17.5%);
+  --muted-foreground: hsl(215 20.2% 65.1%);
+  --accent: hsl(217.2 32.6% 17.5%);
+  --accent-foreground: hsl(210 40% 98%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(210 40% 98%);
+  --border: hsl(217.2 32.6% 17.5%);
+  --input: hsl(217.2 32.6% 17.5%);
+  --ring: hsl(224.3 76.3% 48%);
+
+  /* Mantine dark overrides */
+  --mantine-color-body: var(--background);
+  --mantine-color-dimmed: var(--muted-foreground);
+  --mantine-color-bright: var(--foreground);
+  --mantine-color-placeholder: var(--muted-foreground);
+  --mantine-primary-color-filled: var(--primary);
+  --mantine-primary-color-filled-hover: color-mix(
+    in srgb,
+    var(--primary) 85%,
+    transparent
+  );
+  --mantine-primary-color-light: color-mix(
+    in srgb,
+    var(--primary) 15%,
+    transparent
+  );
+  --mantine-primary-color-light-hover: color-mix(
+    in srgb,
+    var(--primary) 20%,
+    transparent
+  );
+
+  /* MRT dark mode */
+  --mrt-base-background-color: var(--background);
+  --mrt-striped-row-background-color: color-mix(
+    in srgb,
+    var(--mrt-base-background-color) 96%,
+    white
+  );
+  --mrt-row-hover-background-color: color-mix(
+    in srgb,
+    var(--mrt-base-background-color) 92%,
+    white
+  );
+  --mrt-striped-row-hover-background-color: color-mix(
+    in srgb,
+    var(--mrt-striped-row-background-color) 92%,
+    white
+  );
+  --mrt-selected-row-hover-background-color: color-mix(
+    in srgb,
+    var(--mantine-primary-color-light-hover) 95%,
+    white
+  );
+  --mrt-pinned-column-background-color: color-mix(
+    in srgb,
+    var(--mrt-base-background-color) 95%,
+    black
+  );
+
+  /* Resolved light-dark variables (dark mode values) */
+  --mrt-pinned-shadow-color: var(--mantine-color-dark-outline);
+  --mrt-border-color: var(--mantine-color-gray-7);
+  --mrt-border-color-alt: var(--mantine-color-dark-4);
+  --mrt-ai-hover-bg: var(--mantine-color-dark-6);
+}
 
 @layer base {
-  :root {
-    color-scheme: light;
-
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-
-    /* Mantine compatibility variables */
-    --mantine-scale: 1;
-    --mantine-color-body: hsl(var(--background));
-    --mantine-color-dimmed: hsl(var(--muted-foreground));
-    --mantine-color-bright: hsl(var(--foreground));
-    --mantine-color-black: #000;
-    --mantine-color-placeholder: hsl(var(--muted-foreground));
-    --mantine-color-gray-1: #f1f3f5;
-    --mantine-color-gray-3: #dee2e6;
-    --mantine-color-gray-7: #495057;
-    --mantine-color-gray-outline: #dee2e6;
-    --mantine-color-dark-4: #373a40;
-    --mantine-color-dark-6: #25262b;
-    --mantine-color-dark-outline: #373a40;
-    --mantine-primary-color-filled: hsl(var(--primary));
-    --mantine-primary-color-filled-hover: hsl(var(--primary) / 0.85);
-    --mantine-primary-color-light: hsl(var(--primary) / 0.15);
-    --mantine-primary-color-light-hover: hsl(var(--primary) / 0.2);
-    --mantine-spacing-xs: 0.625rem;
-    --mantine-spacing-sm: 0.75rem;
-    --mantine-spacing-md: 1rem;
-    --mantine-spacing-lg: 1.25rem;
-    --mantine-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05),
-      0 1px 2px rgba(0, 0, 0, 0.1);
-    --mantine-font-size-xl: 1.25rem;
-
-    /* MRT base background */
-    --mrt-base-background-color: hsl(var(--background));
-
-    /* MRT striped rows (light: darken 5%) */
-    --mrt-striped-row-background-color: color-mix(
-      in srgb,
-      var(--mrt-base-background-color) 95%,
-      black
-    );
-    /* MRT row hover (light: darken 8%) */
-    --mrt-row-hover-background-color: color-mix(
-      in srgb,
-      var(--mrt-base-background-color) 92%,
-      black
-    );
-    --mrt-striped-row-hover-background-color: color-mix(
-      in srgb,
-      var(--mrt-striped-row-background-color) 88%,
-      black
-    );
-
-    /* MRT selection (alpha of primary-light at 80%) */
-    --mrt-selected-row-background-color: color-mix(
-      in srgb,
-      var(--mantine-primary-color-light) 80%,
-      transparent
-    );
-    --mrt-selected-row-hover-background-color: color-mix(
-      in srgb,
-      var(--mantine-primary-color-light-hover) 95%,
-      black
-    );
-
-    /* MRT row/column pinning */
-    --mrt-pinned-row-background-color: var(
-      --mrt-selected-row-background-color
-    );
-    --mrt-pinned-row-hover-background-color: var(
-      --mrt-selected-row-hover-background-color
-    );
-    --mrt-pinned-column-background-color: color-mix(
-      in srgb,
-      var(--mrt-base-background-color) 99%,
-      black
-    );
-
-    /* MRT borders for drag/resize */
-    --mrt-dragging-hovered-border-color: var(--mantine-primary-color-filled);
-    --mrt-dragging-drag-border-color: var(--mantine-color-gray-7);
-    --mrt-resize-column-border-color: var(--mantine-primary-color-filled);
-
-    /* Resolved light-dark variables (light mode values) */
-    --mrt-pinned-shadow-color: var(--mantine-color-gray-outline);
-    --mrt-border-color: var(--mantine-color-gray-3);
-    --mrt-border-color-alt: var(--mantine-color-gray-3);
-    --mrt-ai-hover-bg: var(--mantine-color-gray-1);
-  }
-
-  .dark {
-    color-scheme: dark;
-
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-
-    /* Mantine dark overrides */
-    --mantine-color-body: hsl(var(--background));
-    --mantine-color-dimmed: hsl(var(--muted-foreground));
-    --mantine-color-bright: hsl(var(--foreground));
-    --mantine-color-placeholder: hsl(var(--muted-foreground));
-    --mantine-primary-color-filled: hsl(var(--primary));
-    --mantine-primary-color-filled-hover: hsl(var(--primary) / 0.85);
-    --mantine-primary-color-light: hsl(var(--primary) / 0.15);
-    --mantine-primary-color-light-hover: hsl(var(--primary) / 0.2);
-
-    /* MRT dark mode */
-    --mrt-base-background-color: hsl(var(--background));
-    --mrt-striped-row-background-color: color-mix(
-      in srgb,
-      var(--mrt-base-background-color) 96%,
-      white
-    );
-    --mrt-row-hover-background-color: color-mix(
-      in srgb,
-      var(--mrt-base-background-color) 92%,
-      white
-    );
-    --mrt-striped-row-hover-background-color: color-mix(
-      in srgb,
-      var(--mrt-striped-row-background-color) 92%,
-      white
-    );
-    --mrt-selected-row-hover-background-color: color-mix(
-      in srgb,
-      var(--mantine-primary-color-light-hover) 95%,
-      white
-    );
-    --mrt-pinned-column-background-color: color-mix(
-      in srgb,
-      var(--mrt-base-background-color) 95%,
-      black
-    );
-
-    /* Resolved light-dark variables (dark mode values) */
-    --mrt-pinned-shadow-color: var(--mantine-color-dark-outline);
-    --mrt-border-color: var(--mantine-color-gray-7);
-    --mrt-border-color-alt: var(--mantine-color-dark-4);
-    --mrt-ai-hover-bg: var(--mantine-color-dark-6);
-  }
-
-  * {
-    @apply border-border;
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border);
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 }

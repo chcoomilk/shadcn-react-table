@@ -9,7 +9,7 @@ const tailwindMergeStylesPlugin = () => ({
   name: 'tailwind-merge-styles',
   writeBundle() {
     execSync(
-      'pnpm exec tailwindcss -c tailwind.config.cjs -i ./src/globals.css -o ./dist/tw.css',
+      'pnpm exec @tailwindcss/cli -i ./src/globals.css -o ./dist/tw.css',
       { stdio: 'inherit' },
     );
     execSync('node merge-styles.mjs', { stdio: 'inherit' });

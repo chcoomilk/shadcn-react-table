@@ -42,7 +42,7 @@ export const MRT_GrabHandleButton = <TData extends MRT_RowData>({
             (actionIconProps?.title as string | undefined) ?? move
           }
           className={clsx(
-            'mrt-grab-handle-button h-8 w-8 text-muted-foreground',
+            'mrt-grab-handle-button text-muted-foreground',
             classes['grab-icon'],
             actionIconProps?.className,
           )}
