@@ -33,6 +33,7 @@ import {
   IconSortDescending,
   IconX,
 } from '@tabler/icons-react';
+import { Columns3Cog } from 'lucide-react';
 
 export const MRT_Default_Icons = {
   IconArrowAutofitContent,
@@ -49,7 +50,7 @@ export const MRT_Default_Icons = {
   IconChevronsDown,
   IconCircleX,
   IconClearAll,
-  IconColumns,
+  IconColumns: Columns3Cog,
   IconDeviceFloppy,
   IconDots,
   IconDotsVertical,

@@ -137,9 +137,9 @@ export const CustomizeSearchTextBox = () => (
     data={data}
     initialState={{ showGlobalFilter: true }}
     mantineSearchTextInputProps={{
-      label: 'Search',
+      'aria-label': 'Search',
+      className: 'bg-muted/50',
       placeholder: 'Search 100 rows',
-      variant: 'filled',
     }}
   />
 );

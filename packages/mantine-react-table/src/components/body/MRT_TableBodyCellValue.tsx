@@ -1,4 +1,4 @@
-import { Highlight, type HighlightProps } from '@mantine/core';
+import { Fragment, type ReactNode } from 'react';
 
 import {
   type MRT_Cell,
@@ -6,10 +6,47 @@ import {
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
-import { parseFromValuesOrFunc } from '../../utils/utils';
 
 const allowedTypes = ['string', 'number'];
 const allowedFilterVariants = ['text', 'autocomplete'];
+
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function HighlightedText({
+  children,
+  highlight,
+}: {
+  children: string;
+  highlight: string | string[];
+}) {
+  const terms = (Array.isArray(highlight) ? highlight : [highlight]).filter(
+    (t) => t && String(t).length > 0,
+  );
+  if (!terms.length) return <>{children}</>;
+  const pattern = terms.map(escapeRegExp).join('|');
+  const parts = children.split(new RegExp(`(${pattern})`, 'gi'));
+  return (
+    <>
+      {parts.map((part, i) => {
+        const isHit = terms.some(
+          (t) => part.toLowerCase() === String(t).toLowerCase(),
+        );
+        return isHit ? (
+          <mark
+            className="rounded-sm bg-yellow-200/90 px-0.5 dark:bg-yellow-900/50"
+            key={i}
+          >
+            {part}
+          </mark>
+        ) : (
+          <Fragment key={i}>{part}</Fragment>
+        );
+      })}
+    </>
+  );
+}
 
 interface Props<TData extends MRT_RowData, TValue = MRT_CellValue> {
   cell: MRT_Cell<TData, TValue>;
@@ -26,24 +63,18 @@ export const MRT_TableBodyCellValue = <TData extends MRT_RowData>({
 }: Props<TData>) => {
   const {
     getState,
-    options: {
-      enableFilterMatchHighlighting,
-      mantineHighlightProps = { size: 'sm' },
-    },
+    options: { enableFilterMatchHighlighting },
   } = table;
   const { column, row } = cell;
   const { columnDef } = column;
   const { globalFilter, globalFilterFn } = getState();
   const filterValue = column.getFilterValue();
 
-  const highlightProps = parseFromValuesOrFunc(mantineHighlightProps, {
-    cell,
-    column,
-    row,
-    table,
-  }) as Partial<HighlightProps>;
-
-  let renderedCellValue =
+  let renderedCellValue:
+    | ReactNode
+    | number
+    | string
+    | undefined =
     cell.getIsAggregated() && columnDef.AggregatedCell
       ? columnDef.AggregatedCell({
           cell,
@@ -86,13 +117,13 @@ export const MRT_TableBodyCellValue = <TData extends MRT_RowData>({
       ''
     ).toString() as string;
     if ((filterValue ? columnDef._filterFn : globalFilterFn) === 'fuzzy') {
-      highlight = highlight.split(' ');
+      highlight = highlight.split(/\s+/).filter(Boolean);
     }
 
     renderedCellValue = (
-      <Highlight color="yellow.3" highlight={highlight} {...highlightProps}>
-        {renderedCellValue?.toString()}
-      </Highlight>
+      <HighlightedText highlight={highlight}>
+        {renderedCellValue?.toString() ?? ''}
+      </HighlightedText>
     );
   }
 

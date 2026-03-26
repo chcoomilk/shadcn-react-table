@@ -2,10 +2,7 @@ import clsx from 'clsx';
 
 import classes from './MRT_TableFooterRow.module.css';
 
-import { Box, TableTr, type TableTrProps } from '@mantine/core';
-
-import { MRT_TableFooterCell } from './MRT_TableFooterCell';
-
+import { type TableTrProps } from '../../types/mrt-ui-props';
 import {
   type MRT_ColumnVirtualizer,
   type MRT_Header,
@@ -15,6 +12,8 @@ import {
   type MRT_VirtualItem,
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { TableTh, TableTr } from '../ui/table';
+import { MRT_TableFooterCell } from './MRT_TableFooterCell';
 
 interface Props<TData extends MRT_RowData> extends TableTrProps {
   columnVirtualizer?: MRT_ColumnVirtualizer;
@@ -35,7 +34,6 @@ export const MRT_TableFooterRow = <TData extends MRT_RowData>({
   const { virtualColumns, virtualPaddingLeft, virtualPaddingRight } =
     columnVirtualizer ?? {};
 
-  // if no content in row, skip row
   if (
     !footerGroup.headers?.some(
       (header) =>
@@ -57,14 +55,19 @@ export const MRT_TableFooterRow = <TData extends MRT_RowData>({
 
   return (
     <TableTr
+      {...tableRowProps}
       className={clsx(
         classes.root,
         layoutMode?.startsWith('grid') && classes['layout-mode-grid'],
+        tableRowProps?.className,
       )}
-      {...tableRowProps}
     >
       {virtualPaddingLeft ? (
-        <Box component="th" display="flex" w={virtualPaddingLeft} />
+        <TableTh
+          aria-hidden
+          className="flex border-0 p-0"
+          style={{ width: virtualPaddingLeft, minWidth: virtualPaddingLeft }}
+        />
       ) : null}
       {(virtualColumns ?? footerGroup.headers).map(
         (footerOrVirtualFooter, renderedColumnIndex) => {
@@ -86,7 +89,11 @@ export const MRT_TableFooterRow = <TData extends MRT_RowData>({
         },
       )}
       {virtualPaddingRight ? (
-        <Box component="th" display="flex" w={virtualPaddingRight} />
+        <TableTh
+          aria-hidden
+          className="flex border-0 p-0"
+          style={{ width: virtualPaddingRight, minWidth: virtualPaddingRight }}
+        />
       ) : null}
     </TableTr>
   );

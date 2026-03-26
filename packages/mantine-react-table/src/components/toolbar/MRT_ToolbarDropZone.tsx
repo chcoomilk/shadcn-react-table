@@ -4,9 +4,8 @@ import classes from './MRT_ToolbarDropZone.module.css';
 
 import { type DragEvent, useEffect } from 'react';
 
-import { Flex, type FlexProps, Text, Transition } from '@mantine/core';
-
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
+import { type FlexProps } from '../../types/mrt-ui-props';
 
 interface Props<TData extends MRT_RowData> extends FlexProps {
   table: MRT_TableInstance<TData>;
@@ -41,26 +40,26 @@ export const MRT_ToolbarDropZone = <TData extends MRT_RowData>({
     }
   }, [enableGrouping, draggingColumn, grouping]);
 
+  if (!showToolbarDropZone) {
+    return null;
+  }
+
   return (
-    <Transition mounted={showToolbarDropZone} transition="fade">
-      {() => (
-        <Flex
-          className={clsx(
-            'mrt-toolbar-dropzone',
-            classes.root,
-            hoveredColumn?.id === 'drop-zone' && classes.hovered,
-          )}
-          onDragEnter={handleDragEnter}
-          {...rest}
-        >
-          <Text>
-            {localization.dropToGroupBy.replace(
-              '{column}',
-              draggingColumn?.columnDef?.header ?? '',
-            )}
-          </Text>
-        </Flex>
+    <div
+      className={clsx(
+        'mrt-toolbar-dropzone flex items-center justify-center py-2 transition-opacity duration-150',
+        classes.root,
+        hoveredColumn?.id === 'drop-zone' && classes.hovered,
       )}
-    </Transition>
+      onDragEnter={handleDragEnter}
+      {...rest}
+    >
+      <span className="text-sm text-muted-foreground">
+        {localization.dropToGroupBy.replace(
+          '{column}',
+          String(draggingColumn?.columnDef?.header ?? ''),
+        )}
+      </span>
+    </div>
   );
 };

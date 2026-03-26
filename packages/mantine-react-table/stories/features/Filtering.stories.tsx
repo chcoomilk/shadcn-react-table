@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
-
-import { Button, Checkbox, Flex, Group, SegmentedControl } from '@mantine/core';
+import { type ChangeEvent, useEffect, useState } from 'react';
 
 import {
   MantineReactTable,
@@ -8,6 +6,7 @@ import {
   type MRT_ColumnFiltersState,
   type MRT_FilterTooltipValueFn,
 } from '../../src';
+import { Button } from '../../src/components/ui/button';
 
 import { MRT_Localization_EN } from '../../src/locales/en';
 import { MRT_Localization_JA } from '../../src/locales/ja';
@@ -716,7 +715,7 @@ export const ExternalSetFilterValue = () => (
     data={data}
     initialState={{ showColumnFilters: true }}
     renderTopToolbarCustomActions={({ table }) => (
-      <Flex gap="md">
+      <div className="flex flex-wrap gap-2">
         <Button
           onClick={() =>
             table.setColumnFilters((prev) => [
@@ -724,6 +723,9 @@ export const ExternalSetFilterValue = () => (
               { id: 'firstName', value: 'Joe' },
             ])
           }
+          size="sm"
+          type="button"
+          variant="secondary"
         >
           Find Joes
         </Button>
@@ -734,13 +736,21 @@ export const ExternalSetFilterValue = () => (
               { id: 'age', value: [18, 25] },
             ])
           }
+          size="sm"
+          type="button"
+          variant="secondary"
         >
           Find 18-25 Age Range
         </Button>
-        <Button onClick={() => table.resetColumnFilters()}>
+        <Button
+          onClick={() => table.resetColumnFilters()}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
           Reset Filters
         </Button>
-      </Flex>
+      </div>
     )}
   />
 );
@@ -843,20 +853,34 @@ export const CustomTooltipValueFn = () => {
         localization={localization}
         onColumnFiltersChange={setColumnFilters}
         renderTopToolbarCustomActions={() => (
-          <Group>
-            <Checkbox
-              checked={enableValueFns}
-              label="Enable Custom Tooltip Value Fn"
-              onChange={(event) =>
-                setEnableValueFns(event.currentTarget.checked)
-              }
-            />
-            <SegmentedControl
-              data={['en', 'ja']}
-              onChange={setLocale}
-              value={locale}
-            />
-          </Group>
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                checked={enableValueFns}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setEnableValueFns(event.currentTarget.checked)
+                }
+                type="checkbox"
+              />
+              Enable Custom Tooltip Value Fn
+            </label>
+            <div className="inline-flex rounded-md border border-input p-0.5">
+              {(['en', 'ja'] as const).map((code) => (
+                <button
+                  className={`rounded px-3 py-1 text-sm ${
+                    locale === code
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-muted'
+                  }`}
+                  key={code}
+                  onClick={() => setLocale(code)}
+                  type="button"
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
         state={{
           columnFilters,

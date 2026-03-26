@@ -13,5 +13,5 @@
   position: sticky;
   z-index: 1;
   outline: 1px solid
-    light-dark(var(--mantine-color-gray-3), var(--mantine-color-gray-7));
+    var(--mrt-border-color);
 }

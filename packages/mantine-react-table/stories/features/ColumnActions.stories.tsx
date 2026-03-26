@@ -1,6 +1,8 @@
-import { Menu } from '@mantine/core';
-
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
+import {
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '../../src/components/ui/dropdown-menu';
 
 import { faker } from '@faker-js/faker';
 import { type Meta } from '@storybook/react';
@@ -131,8 +133,8 @@ export const CustomColumnActions = () => (
     data={data}
     renderColumnActionsMenuItems={() => (
       <>
-        <Menu.Item>Item 1</Menu.Item>
-        <Menu.Item>Item 2</Menu.Item>
+        <DropdownMenuItem onSelect={() => {}}>Item 1</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => {}}>Item 2</DropdownMenuItem>
       </>
     )}
   />
@@ -146,8 +148,8 @@ export const CustomColumnActionsPerColumn = () => (
         header: 'First Name',
         renderColumnActionsMenuItems: () => (
           <>
-            <Menu.Item>Item 1</Menu.Item>
-            <Menu.Item>Item 2</Menu.Item>
+            <DropdownMenuItem onSelect={() => {}}>Item 1</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => {}}>Item 2</DropdownMenuItem>
           </>
         ),
       },
@@ -156,8 +158,8 @@ export const CustomColumnActionsPerColumn = () => (
         header: 'Last Name',
         renderColumnActionsMenuItems: () => (
           <>
-            <Menu.Item>Item 2</Menu.Item>
-            <Menu.Item>Item 3</Menu.Item>
+            <DropdownMenuItem onSelect={() => {}}>Item 2</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => {}}>Item 3</DropdownMenuItem>
           </>
         ),
       },
@@ -168,9 +170,9 @@ export const CustomColumnActionsPerColumn = () => (
         renderColumnActionsMenuItems: ({ internalColumnMenuItems }) => (
           <>
             {internalColumnMenuItems}
-            <Menu.Divider />
-            <Menu.Item>Item 1</Menu.Item>
-            <Menu.Item>Item 2</Menu.Item>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => {}}>Item 1</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => {}}>Item 2</DropdownMenuItem>
           </>
         ),
       },

@@ -51,6 +51,10 @@ const data = [...Array(25)].map(() => ({
   state: faker.location.state(),
 }));
 
+export const RenderTheLetterA = () => (
+  <p>A</p>
+);
+
 export const DefaultLeft = () => (
   <MantineReactTable columns={columns} data={data} />
 );

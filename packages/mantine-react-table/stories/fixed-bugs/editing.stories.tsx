@@ -1,6 +1,5 @@
-import { Menu } from '@mantine/core';
-
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
+import { DropdownMenuItem } from '../../src/components/ui/dropdown-menu';
 
 import { faker } from '@faker-js/faker';
 import { type Meta } from '@storybook/react';
@@ -59,9 +58,9 @@ export const TableEditModeAndRowActions = () => {
       enableEditing
       enableRowActions
       renderRowActionMenuItems={() => (
-        <>
-          <Menu.Item onClick={() => console.info('Delete')}>Delete</Menu.Item>
-        </>
+        <DropdownMenuItem onSelect={() => console.info('Delete')}>
+          Delete
+        </DropdownMenuItem>
       )}
     />
   );

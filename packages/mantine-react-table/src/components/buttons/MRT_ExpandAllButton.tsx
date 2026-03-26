@@ -2,8 +2,10 @@ import clsx from 'clsx';
 
 import classes from './MRT_ExpandAllButton.module.css';
 
-import { ActionIcon, type ActionIconProps, Tooltip } from '@mantine/core';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 
@@ -40,43 +42,44 @@ export const MRT_ExpandAllButton = <TData extends MRT_RowData>({
   const isAllRowsExpanded = getIsAllRowsExpanded();
 
   return (
-    <Tooltip
-      label={
-        (actionIconProps?.title ?? isAllRowsExpanded)
-          ? localization.collapseAll
-          : localization.expandAll
-      }
-      openDelay={1000}
-      withinPortal
-    >
-      <ActionIcon
-        aria-label={localization.expandAll}
-        color="gray"
-        variant="subtle"
-        {...actionIconProps}
-        className={clsx(
-          'mrt-expand-all-button',
-          classes.root,
-          actionIconProps?.className,
-          density,
-        )}
-        disabled={isLoading || (!renderDetailPanel && !getCanSomeRowsExpand())}
-        onClick={() => toggleAllRowsExpanded(!isAllRowsExpanded)}
-        title={undefined}
-      >
-        {actionIconProps?.children ?? (
-          <IconChevronsDown
-            className={clsx(
-              classes.chevron,
-              isAllRowsExpanded
-                ? classes.up
-                : getIsSomeRowsExpanded()
-                  ? classes.right
-                  : undefined,
-            )}
-          />
-        )}
-      </ActionIcon>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          {...actionIconProps}
+          aria-label={localization.expandAll}
+          className={clsx(
+            'mrt-expand-all-button h-9 w-9 text-muted-foreground',
+            classes.root,
+            actionIconProps?.className,
+            density,
+          )}
+          disabled={isLoading || (!renderDetailPanel && !getCanSomeRowsExpand())}
+          onClick={() => toggleAllRowsExpanded(!isAllRowsExpanded)}
+          size="icon"
+          variant="ghost"
+          title={undefined}
+        >
+          {actionIconProps?.children ?? (
+            <IconChevronsDown
+              className={clsx(
+                'size-4',
+                classes.chevron,
+                isAllRowsExpanded
+                  ? classes.up
+                  : getIsSomeRowsExpanded()
+                    ? classes.right
+                    : undefined,
+              )}
+            />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        {(actionIconProps?.title as string | undefined) ??
+          (isAllRowsExpanded
+            ? localization.collapseAll
+            : localization.expandAll)}
+      </TooltipContent>
     </Tooltip>
   );
 };

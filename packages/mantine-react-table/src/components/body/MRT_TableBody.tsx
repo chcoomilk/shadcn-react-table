@@ -4,12 +4,6 @@ import classes from './MRT_TableBody.module.css';
 
 import { memo, useMemo } from 'react';
 
-import {
-  type TableProps,
-  TableTbody,
-  type TableTbodyProps,
-} from '@mantine/core';
-
 import { MRT_TableBodyEmptyRow } from './MRT_TableBodyEmptyRow';
 import { Memo_MRT_TableBodyRow, MRT_TableBodyRow } from './MRT_TableBodyRow';
 
@@ -22,7 +16,10 @@ import {
   type MRT_TableInstance,
   type MRT_VirtualItem,
 } from '../../types';
+import { type TableProps, type TableTbodyProps } from '../../types/mrt-ui-props';
+import { mergeCssVars } from '../../utils/mrt-style';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { TableTbody } from '../ui/table';
 
 export interface MRT_TableBodyProps<TData extends MRT_RowData>
   extends TableTbodyProps {
@@ -61,6 +58,14 @@ export const MRT_TableBody = <TData extends MRT_RowData>({
     ...rest,
   };
 
+  const {
+    __vars: bodyVars,
+    className: bodyClassName,
+    ...restBodyProps
+  } = tableBodyProps as {
+    __vars?: Record<string, number | string | undefined>;
+  } & TableTbodyProps;
+
   const tableHeadHeight =
     ((enableStickyHeader || isFullScreen) &&
       tableHeadRef.current?.clientHeight) ||
@@ -93,16 +98,16 @@ export const MRT_TableBody = <TData extends MRT_RowData>({
       {!rowPinningDisplayMode?.includes('sticky') &&
         getIsSomeRowsPinned('top') && (
           <TableTbody
-            {...tableBodyProps}
-            __vars={{
-              '--mrt-table-head-height': `${tableHeadHeight}`,
-              ...tableBodyProps?.__vars,
-            }}
+            {...restBodyProps}
             className={clsx(
               classes.pinned,
               layoutMode?.startsWith('grid') && classes['root-grid'],
-              tableBodyProps?.className,
+              bodyClassName,
             )}
+            style={mergeCssVars({
+              '--mrt-table-head-height': `${tableHeadHeight}`,
+              ...bodyVars,
+            })}
           >
             {getTopRows().map((row, renderedRowIndex) => {
               const rowProps = {
@@ -119,20 +124,20 @@ export const MRT_TableBody = <TData extends MRT_RowData>({
           </TableTbody>
         )}
       <TableTbody
-        {...tableBodyProps}
-        __vars={{
-          '--mrt-table-body-height': rowVirtualizer
-            ? `${rowVirtualizer.getTotalSize()}px`
-            : undefined,
-          ...tableBodyProps?.__vars,
-        }}
+        {...restBodyProps}
         className={clsx(
           classes.root,
           layoutMode?.startsWith('grid') && classes['root-grid'],
           !rows.length && classes['root-no-rows'],
           rowVirtualizer && classes['root-virtualized'],
-          tableBodyProps?.className,
+          bodyClassName,
         )}
+        style={mergeCssVars({
+          '--mrt-table-body-height': rowVirtualizer
+            ? `${rowVirtualizer.getTotalSize()}px`
+            : undefined,
+          ...bodyVars,
+        })}
       >
         {tableBodyProps?.children ??
           (!rows.length ? (
@@ -179,16 +184,16 @@ export const MRT_TableBody = <TData extends MRT_RowData>({
       {!rowPinningDisplayMode?.includes('sticky') &&
         getIsSomeRowsPinned('bottom') && (
           <TableTbody
-            {...tableBodyProps}
-            __vars={{
-              '--mrt-table-footer-height': `${tableFooterHeight}`,
-              ...tableBodyProps?.__vars,
-            }}
+            {...restBodyProps}
             className={clsx(
               classes.pinned,
               layoutMode?.startsWith('grid') && classes['root-grid'],
-              tableBodyProps?.className,
+              bodyClassName,
             )}
+            style={mergeCssVars({
+              '--mrt-table-footer-height': `${tableFooterHeight}`,
+              ...bodyVars,
+            })}
           >
             {getBottomRows().map((row, renderedRowIndex) => {
               const props = {

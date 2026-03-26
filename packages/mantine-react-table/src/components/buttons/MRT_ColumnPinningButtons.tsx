@@ -2,7 +2,8 @@ import clsx from 'clsx';
 
 import classes from './MRT_ColumnPinningButtons.module.css';
 
-import { ActionIcon, Flex, Tooltip } from '@mantine/core';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 import {
   type MRT_Column,
@@ -26,42 +27,51 @@ export const MRT_ColumnPinningButtons = <TData extends MRT_RowData>({
     },
   } = table;
   return (
-    <Flex className={clsx('mrt-column-pinning-buttons', classes.root)}>
+    <div className={clsx('mrt-column-pinning-buttons flex gap-0.5', classes.root)}>
       {column.getIsPinned() ? (
-        <Tooltip label={localization.unpin} withinPortal>
-          <ActionIcon
-            color="gray"
-            onClick={() => column.pin(false)}
-            size="md"
-            variant="subtle"
-          >
-            <IconPinnedOff />
-          </ActionIcon>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="h-9 w-9 text-muted-foreground"
+              onClick={() => column.pin(false)}
+              size="icon"
+              variant="ghost"
+            >
+              <IconPinnedOff className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{localization.unpin}</TooltipContent>
         </Tooltip>
       ) : (
         <>
-          <Tooltip label={localization.pinToLeft} withinPortal>
-            <ActionIcon
-              color="gray"
-              onClick={() => column.pin('left')}
-              size="md"
-              variant="subtle"
-            >
-              <IconPinned className={classes.left} />
-            </ActionIcon>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="h-9 w-9 text-muted-foreground"
+                onClick={() => column.pin('left')}
+                size="icon"
+                variant="ghost"
+              >
+                <IconPinned className={clsx('size-4', classes.left)} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{localization.pinToLeft}</TooltipContent>
           </Tooltip>
-          <Tooltip label={localization.pinToRight} withinPortal>
-            <ActionIcon
-              color="gray"
-              onClick={() => column.pin('right')}
-              size="md"
-              variant="subtle"
-            >
-              <IconPinned className={classes.right} />
-            </ActionIcon>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="h-9 w-9 text-muted-foreground"
+                onClick={() => column.pin('right')}
+                size="icon"
+                variant="ghost"
+              >
+                <IconPinned className={clsx('size-4', classes.right)} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{localization.pinToRight}</TooltipContent>
           </Tooltip>
         </>
       )}
-    </Flex>
+    </div>
   );
 };

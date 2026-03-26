@@ -1,6 +1,4 @@
-import { useState } from 'react';
-
-import { Center, Flex, Group, Stack, Switch, Text, Title } from '@mantine/core';
+import { type ChangeEvent, useState } from 'react';
 
 import {
   MantineReactTable,
@@ -93,7 +91,7 @@ const data: Person[] = [...Array(100)].map(() => ({
   lastName: faker.person.lastName(),
   phoneNumber: faker.phone.number(),
   state: faker.location.state(),
-  visitedStates: faker.helpers.multiple(faker.location.state),
+  visitedStates: faker.helpers.multiple(() => faker.location.state()),
 }));
 
 export const EditingEnabledEditModeModalDefault = () => {
@@ -359,13 +357,13 @@ export const CustomEditModal = () => {
       })}
       renderEditRowModalContent={({ internalEditComponents, row, table }) => {
         return (
-          <Stack>
-            <Title order={5}>My Custom Edit Modal</Title>
+          <div className="flex flex-col gap-4">
+            <h2 className="text-lg font-semibold">My Custom Edit Modal</h2>
             {internalEditComponents}
-            <Flex justify="flex-end">
+            <div className="flex justify-end">
               <MRT_EditActionButtons row={row} table={table} variant="text" />
-            </Flex>
-          </Stack>
+            </div>
+          </div>
         );
       }}
     />
@@ -698,7 +696,7 @@ export const EditingCustomizeInput = () => {
       enableEditing
       enableRowActions
       mantineEditTextInputProps={{
-        withAsterisk: true,
+        required: true,
       }}
       onEditingRowSave={handleSaveRow}
     />
@@ -1219,17 +1217,27 @@ export const EditingTurnedOnDynamically = () => {
   };
 
   return (
-    <Stack>
-      <Switch
-        checked={enableEditing}
-        label="Enable Editing"
-        onChange={(e) => setEnableEditing(e.currentTarget.checked)}
-      />{' '}
-      <Switch
-        checked={enableRowNumbers}
-        label="Enable Row Numbers"
-        onChange={(e) => setEnableRowNumbers(e.currentTarget.checked)}
-      />
+    <div className="flex flex-col gap-4">
+      <label className="flex cursor-pointer items-center gap-2 text-sm">
+        <input
+          checked={enableEditing}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setEnableEditing(e.target.checked)
+          }
+          type="checkbox"
+        />
+        Enable Editing
+      </label>
+      <label className="flex cursor-pointer items-center gap-2 text-sm">
+        <input
+          checked={enableRowNumbers}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setEnableRowNumbers(e.target.checked)
+          }
+          type="checkbox"
+        />
+        Enable Row Numbers
+      </label>
       <MantineReactTable
         columns={columns}
         data={tableData}
@@ -1239,7 +1247,7 @@ export const EditingTurnedOnDynamically = () => {
         onEditingRowSave={handleSaveRow}
         state={{ columnOrder }}
       />
-    </Stack>
+    </div>
   );
 };
 
@@ -1274,32 +1282,35 @@ export const EditingInDetailPannel = () => {
     columns,
     data: withData ? data : [],
     renderDetailPanel: ({ internalEditComponents, row, table }) => (
-      <Center>
-        <form onSubmit={(e) => e.preventDefault()}>
-          <Group gap="md" pb={24} pt={16}>
-            {internalEditComponents}
-          </Group>
+      <div className="flex flex-col items-center gap-4 p-4">
+        <form className="w-full" onSubmit={(e) => e.preventDefault()}>
+          <div className="flex flex-col gap-4 pb-6 pt-4">{internalEditComponents}</div>
         </form>
-        <Flex justify="flex-end">
+        <div className="flex w-full justify-end">
           <MRT_EditActionButtons row={row} table={table} variant="text" />
-        </Flex>
-      </Center>
+        </div>
+      </div>
     ),
     renderEmptyRowsFallback: () => (
-      <Center>
-        <Text>This table is empty, click on the chevron to add a record</Text>
-      </Center>
+      <div className="flex justify-center py-8 text-sm text-muted-foreground">
+        This table is empty, click on the chevron to add a record
+      </div>
     ),
   });
 
   return (
-    <Stack>
-      <Switch
-        checked={withData}
-        label="Show data"
-        onChange={(e) => setWithData(e.currentTarget.checked)}
-      />
+    <div className="flex flex-col gap-4">
+      <label className="flex cursor-pointer items-center gap-2 text-sm">
+        <input
+          checked={withData}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setWithData(e.target.checked)
+          }
+          type="checkbox"
+        />
+        Show data
+      </label>
       <MantineReactTable table={table} />
-    </Stack>
+    </div>
   );
 };

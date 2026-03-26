@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import { Modal } from '@mantine/core';
-
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '../../src/components/ui/dialog';
 
 import { faker } from '@faker-js/faker';
 import { type Meta } from '@storybook/react';
@@ -114,17 +118,24 @@ export const EnableRowVirtualizationInModal = () => {
   }, []);
 
   return (
-    <Modal onClose={() => setOpened(false)} opened={opened} size="xl">
-      <MantineReactTable
-        columns={longColumns}
-        data={longData}
-        enableBottomToolbar={false}
-        enableColumnVirtualization
-        enablePagination={false}
-        enableRowNumbers
-        enableRowVirtualization
-      />
-    </Modal>
+    <Dialog onOpenChange={setOpened} open={opened}>
+      <DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden">
+        <DialogHeader>
+          <DialogTitle>Virtualized table</DialogTitle>
+        </DialogHeader>
+        <div className="max-h-[calc(90vh-6rem)] overflow-auto">
+          <MantineReactTable
+            columns={longColumns}
+            data={longData}
+            enableBottomToolbar={false}
+            enableColumnVirtualization
+            enablePagination={false}
+            enableRowNumbers
+            enableRowVirtualization
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

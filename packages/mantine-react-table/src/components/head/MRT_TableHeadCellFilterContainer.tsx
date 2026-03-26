@@ -1,15 +1,8 @@
+import clsx from 'clsx';
+
 import classes from './MRT_TableHeadCellFilterContainer.module.css';
 
-import {
-  ActionIcon,
-  Collapse,
-  Flex,
-  type FlexProps,
-  Menu,
-  Text,
-  Tooltip,
-} from '@mantine/core';
-
+import { type FlexProps } from '../../types/mrt-ui-props';
 import { localizedFilterOption } from '../../fns/filterFns';
 import {
   type MRT_Header,
@@ -21,6 +14,13 @@ import { MRT_FilterRangeFields } from '../inputs/MRT_FilterRangeFields';
 import { MRT_FilterRangeSlider } from '../inputs/MRT_FilterRangeSlider';
 import { MRT_FilterTextInput } from '../inputs/MRT_FilterTextInput';
 import { MRT_FilterOptionMenu } from '../menus/MRT_FilterOptionMenu';
+import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 interface Props<TData extends MRT_RowData> extends FlexProps {
   header: MRT_Header<TData>;
@@ -56,40 +56,47 @@ export const MRT_TableHeadCellFilterContainer = <TData extends MRT_RowData>({
     (allowedColumnFilterOptions === undefined ||
       !!allowedColumnFilterOptions?.length);
 
+  const filterOpen = showColumnFilters || columnFilterDisplayMode === 'popover';
+
+  if (!filterOpen) {
+    return null;
+  }
+
   return (
-    <Collapse in={showColumnFilters || columnFilterDisplayMode === 'popover'}>
-      <Flex direction="column" {...rest}>
-        <Flex align="flex-end">
-          {columnDef.filterVariant === 'checkbox' ? (
-            <MRT_FilterCheckbox column={column} table={table} />
-          ) : columnDef.filterVariant === 'range-slider' ? (
-            <MRT_FilterRangeSlider header={header} table={table} />
-          ) : ['date-range', 'range'].includes(columnDef.filterVariant ?? '') ||
-            ['between', 'betweenInclusive', 'inNumberRange'].includes(
-              columnDef._filterFn,
-            ) ? (
-            <MRT_FilterRangeFields header={header} table={table} />
-          ) : (
-            <MRT_FilterTextInput header={header} table={table} />
-          )}
-          {showChangeModeButton && (
-            <Menu withinPortal={columnFilterDisplayMode !== 'popover'}>
-              <Tooltip
-                label={localization.changeFilterMode}
-                position="bottom-start"
-                withinPortal
-              >
-                <Menu.Target>
-                  <ActionIcon
+    <div {...rest} className={clsx("flex flex-col gap-1", rest?.className)}>
+      <div className="flex items-end gap-1">
+        {columnDef.filterVariant === 'checkbox' ? (
+          <MRT_FilterCheckbox column={column} table={table} />
+        ) : columnDef.filterVariant === 'range-slider' ? (
+          <MRT_FilterRangeSlider header={header} table={table} />
+        ) : ['date-range', 'range'].includes(columnDef.filterVariant ?? '') ||
+          ['between', 'betweenInclusive', 'inNumberRange'].includes(
+            columnDef._filterFn,
+          ) ? (
+          <MRT_FilterRangeFields header={header} table={table} />
+        ) : (
+          <MRT_FilterTextInput header={header} table={table} />
+        )}
+        {showChangeModeButton && (
+          <DropdownMenu modal={columnFilterDisplayMode !== 'popover'}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
                     aria-label={localization.changeFilterMode}
-                    color="gray"
-                    size="md"
-                    variant="subtle"
+                    className="h-9 w-9 text-muted-foreground"
+                    size="icon"
+                    variant="ghost"
                   >
-                    <IconFilterCog />
-                  </ActionIcon>
-                </Menu.Target>
-              </Tooltip>
+                    <IconFilterCog className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent align="start" side="bottom">
+                {localization.changeFilterMode}
+              </TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="start" side="bottom">
               <MRT_FilterOptionMenu
                 header={header}
                 onSelect={() =>
@@ -100,22 +107,23 @@ export const MRT_TableHeadCellFilterContainer = <TData extends MRT_RowData>({
                 }
                 table={table}
               />
-            </Menu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+      {showChangeModeButton ? (
+        <label
+          className={clsx(
+            'text-sm text-muted-foreground',
+            classes['filter-mode-label'],
           )}
-        </Flex>
-        {showChangeModeButton ? (
-          <Text
-            c="dimmed"
-            className={classes['filter-mode-label']}
-            component="label"
-          >
-            {localization.filterMode.replace(
-              '{filterType}',
-              localizedFilterOption(localization, currentFilterOption),
-            )}
-          </Text>
-        ) : null}
-      </Flex>
-    </Collapse>
+        >
+          {localization.filterMode.replace(
+            '{filterType}',
+            localizedFilterOption(localization, currentFilterOption),
+          )}
+        </label>
+      ) : null}
+    </div>
   );
 };

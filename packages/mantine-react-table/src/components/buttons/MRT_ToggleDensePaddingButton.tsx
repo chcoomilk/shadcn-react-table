@@ -1,5 +1,9 @@
-import { ActionIcon, type ActionIconProps, Tooltip } from '@mantine/core';
+import clsx from 'clsx';
 
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import {
   type HTMLPropsRef,
   type MRT_DensityState,
@@ -40,25 +44,28 @@ export const MRT_ToggleDensePaddingButton = <TData extends MRT_RowData>({
   const { density } = getState();
 
   return (
-    <Tooltip label={title ?? toggleDensity} withinPortal>
-      <ActionIcon
-        aria-label={title ?? toggleDensity}
-        color="gray"
-        onClick={() =>
-          setDensity((current) => next[current as TogglableDensityState])
-        }
-        size="lg"
-        variant="subtle"
-        {...rest}
-      >
-        {density === 'xs' ? (
-          <IconBaselineDensitySmall />
-        ) : density === 'md' ? (
-          <IconBaselineDensityMedium />
-        ) : (
-          <IconBaselineDensityLarge />
-        )}
-      </ActionIcon>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          {...rest}
+          aria-label={title ?? toggleDensity}
+          className={clsx('h-9 w-9 text-muted-foreground', rest?.className)}
+          onClick={() =>
+            setDensity((current) => next[current as TogglableDensityState])
+          }
+          size="icon"
+          variant="ghost"
+        >
+          {density === 'xs' ? (
+            <IconBaselineDensitySmall className="size-4" />
+          ) : density === 'md' ? (
+            <IconBaselineDensityMedium className="size-4" />
+          ) : (
+            <IconBaselineDensityLarge className="size-4" />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">{title ?? toggleDensity}</TooltipContent>
     </Tooltip>
   );
 };

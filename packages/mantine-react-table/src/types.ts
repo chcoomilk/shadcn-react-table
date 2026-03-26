@@ -50,6 +50,7 @@ import {
   type BadgeProps,
   type BoxProps,
   type CheckboxProps,
+  type DateInputProps,
   type HighlightProps,
   type LoadingOverlayProps,
   type ModalProps,
@@ -71,8 +72,7 @@ import {
   type TableTrProps,
   type TextInputProps,
   type UnstyledButtonProps,
-} from '@mantine/core';
-import { type DateInputProps } from '@mantine/dates';
+} from './types/mrt-ui-props';
 
 import { type MRT_AggregationFns } from './fns/aggregationFns';
 import { type MRT_FilterFns } from './fns/filterFns';

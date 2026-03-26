@@ -2,16 +2,18 @@ import clsx from 'clsx';
 
 import classes from './MRT_TablePaper.module.css';
 
-import { Paper, type PaperProps } from '@mantine/core';
+import { Card } from '../ui/card';
 
-import { MRT_TableContainer } from './MRT_TableContainer';
-
+import { useMRTCompatibleTheme } from '../../lib/mrt-theme';
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
+import { resolveThemeStyle } from '../../utils/mrt-style';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { MRT_BottomToolbar } from '../toolbar/MRT_BottomToolbar';
 import { MRT_TopToolbar } from '../toolbar/MRT_TopToolbar';
+import { MRT_TableContainer } from './MRT_TableContainer';
 
-interface Props<TData extends MRT_RowData> extends PaperProps {
+interface Props<TData extends MRT_RowData>
+  extends React.HTMLAttributes<HTMLDivElement> {
   table: MRT_TableInstance<TData>;
 }
 
@@ -19,6 +21,7 @@ export const MRT_TablePaper = <TData extends MRT_RowData>({
   table,
   ...rest
 }: Props<TData>) => {
+  const theme = useMRTCompatibleTheme();
   const {
     getState,
     options: {
@@ -37,27 +40,34 @@ export const MRT_TablePaper = <TData extends MRT_RowData>({
     ...rest,
   };
 
+  const baseStyle = resolveThemeStyle(
+    tablePaperProps.style as
+      | React.CSSProperties
+      | ((t: typeof theme) => React.CSSProperties)
+      | undefined,
+    theme,
+  );
+
   return (
-    <Paper
-      shadow="xs"
-      withBorder
+    <Card
       {...tablePaperProps}
       className={clsx(
-        'mrt-table-paper',
+        'mrt-table-paper rounded-md border shadow-sm',
         classes.root,
         isFullScreen && 'mrt-table-paper-fullscreen',
         tablePaperProps?.className,
       )}
-      ref={(ref: HTMLDivElement) => {
+      ref={(ref: HTMLDivElement | null) => {
         tablePaperRef.current = ref;
         if (tablePaperProps?.ref) {
-          tablePaperProps.ref.current = ref;
+          (
+            tablePaperProps.ref as React.MutableRefObject<HTMLDivElement | null>
+          ).current = ref;
         }
       }}
-      // rare case where we should use inline styles to guarantee highest specificity
-      style={(theme) => ({
+      style={{
         zIndex: isFullScreen ? 200 : undefined,
-        ...parseFromValuesOrFunc(tablePaperProps?.style, theme),
+        ...baseStyle,
         ...(isFullScreen
           ? {
               border: 0,
@@ -75,7 +85,7 @@ export const MRT_TablePaper = <TData extends MRT_RowData>({
               width: '100vw',
             }
           : null),
-      })}
+      }}
     >
       {enableTopToolbar &&
         (parseFromValuesOrFunc(renderTopToolbar, { table }) ?? (
@@ -86,6 +96,6 @@ export const MRT_TablePaper = <TData extends MRT_RowData>({
         (parseFromValuesOrFunc(renderBottomToolbar, { table }) ?? (
           <MRT_BottomToolbar table={table} />
         ))}
-    </Paper>
+    </Card>
   );
 };

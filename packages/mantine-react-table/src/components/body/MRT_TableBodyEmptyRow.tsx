@@ -2,25 +2,20 @@ import clsx from 'clsx';
 
 import classes from './MRT_TableBody.module.css';
 
-import { useMemo } from 'react';
+import { type CSSProperties, useMemo } from 'react';
 
 import { createRow } from '@tanstack/react-table';
 
-import {
-  type TableProps,
-  TableTd,
-  type TableTrProps,
-  Text,
-} from '@mantine/core';
-
-import { MRT_TableBodyRow } from './MRT_TableBodyRow';
-
+import { type TableProps, type TableTrProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Row,
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
+import { mergeCssVars } from '../../utils/mrt-style';
 import { MRT_ExpandButton } from '../buttons/MRT_ExpandButton';
+import { TableTd } from '../ui/table';
+import { MRT_TableBodyRow } from './MRT_TableBodyRow';
 
 interface Props<TData extends MRT_RowData> extends TableTrProps {
   table: MRT_TableInstance<TData>;
@@ -92,16 +87,18 @@ export const MRT_TableBodyEmptyRow = <TData extends MRT_RowData>({
         colSpan={table.getVisibleLeafColumns().length}
       >
         {renderEmptyRowsFallback?.({ table }) ?? (
-          <Text
-            __vars={{
-              '--mrt-paper-width': `${tablePaperRef.current?.clientWidth}`,
-            }}
+          <span
             className={clsx(classes['empty-row-td-content'])}
+            style={
+              mergeCssVars({
+                '--mrt-paper-width': `${tablePaperRef.current?.clientWidth}`,
+              }) as CSSProperties
+            }
           >
             {globalFilter || columnFilters.length
               ? localization.noResultsFound
               : localization.noRecordsToDisplay}
-          </Text>
+          </span>
         )}
       </td>
     </MRT_TableBodyRow>

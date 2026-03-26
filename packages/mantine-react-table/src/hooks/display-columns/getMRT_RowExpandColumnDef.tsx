@@ -1,9 +1,8 @@
 import { type ReactNode } from 'react';
 
-import { Flex, Tooltip } from '@mantine/core';
-
 import { MRT_ExpandAllButton } from '../../components/buttons/MRT_ExpandAllButton';
 import { MRT_ExpandButton } from '../../components/buttons/MRT_ExpandButton';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui/tooltip';
 import {
   type MRT_ColumnDef,
   type MRT_RowData,
@@ -36,17 +35,18 @@ export const getMRT_RowExpandColumnDef = <TData extends MRT_RowData>(
       const subRowsLength = row.subRows?.length;
       if (tableOptions.groupedColumnMode === 'remove' && row.groupingColumnId) {
         return (
-          <Flex align="center" gap="0.25rem">
+          <div className="flex items-center gap-1">
             <MRT_ExpandButton {...expandButtonProps} />
-            <Tooltip
-              label={table.getColumn(row.groupingColumnId).columnDef.header}
-              openDelay={1000}
-              position="right"
-            >
-              <span>{row.groupingValue as ReactNode}</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>{row.groupingValue as ReactNode}</span>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                {table.getColumn(row.groupingColumnId).columnDef.header}
+              </TooltipContent>
             </Tooltip>
             {!!subRowsLength && <span>({subRowsLength})</span>}
-          </Flex>
+          </div>
         );
       } else {
         return (
@@ -60,7 +60,7 @@ export const getMRT_RowExpandColumnDef = <TData extends MRT_RowData>(
     Header: enableExpandAll
       ? ({ table }) => {
           return (
-            <Flex align="center">
+            <div className="flex items-center gap-1">
               <MRT_ExpandAllButton table={table} />
               {groupedColumnMode === 'remove' &&
                 grouping
@@ -69,7 +69,7 @@ export const getMRT_RowExpandColumnDef = <TData extends MRT_RowData>(
                       table.getColumn(groupedColumnId).columnDef.header,
                   )
                   ?.join(', ')}
-            </Flex>
+            </div>
           );
         }
       : undefined,

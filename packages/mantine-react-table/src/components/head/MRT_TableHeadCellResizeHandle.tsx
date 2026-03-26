@@ -2,13 +2,13 @@ import clsx from 'clsx';
 
 import classes from './MRT_TableHeadCellResizeHandle.module.css';
 
-import { Box, type BoxProps } from '@mantine/core';
-
+import { type BoxProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Header,
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
+import { MRT_Box } from '../mrt/MRT_Box';
 
 interface Props<TData extends MRT_RowData> extends BoxProps {
   header: MRT_Header<TData>;
@@ -37,8 +37,12 @@ export const MRT_TableHeadCellResizeHandle = <TData extends MRT_RowData>({
         }px)`
       : undefined;
 
+  const { __vars: restVars, className: restClassName, ...restBox } = rest as BoxProps & {
+    __vars?: Record<string, string | number | undefined>;
+  };
+
   return (
-    <Box
+    <MRT_Box
       onDoubleClick={() => {
         setColumnSizingInfo((old) => ({
           ...old,
@@ -49,8 +53,8 @@ export const MRT_TableHeadCellResizeHandle = <TData extends MRT_RowData>({
       onMouseDown={handler}
       onTouchStart={handler}
       role="separator"
-      {...rest}
-      __vars={{ '--mrt-transform': offset, ...rest.__vars }}
+      {...restBox}
+      __vars={{ '--mrt-transform': offset, ...restVars }}
       className={clsx(
         'mrt-table-head-cell-resize-handle',
         classes.root,
@@ -59,7 +63,7 @@ export const MRT_TableHeadCellResizeHandle = <TData extends MRT_RowData>({
           columnResizeMode === 'onChange' &&
           classes['root-hide'],
         density,
-        rest.className,
+        restClassName,
       )}
     />
   );

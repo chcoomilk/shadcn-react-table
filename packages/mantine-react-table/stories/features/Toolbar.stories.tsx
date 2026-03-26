@@ -1,10 +1,15 @@
-import { ActionIcon, Box, Button, Title, Tooltip } from '@mantine/core';
-
 import {
   MantineReactTable,
   type MRT_ColumnDef,
   MRT_ToggleFullScreenButton,
 } from '../../src';
+import { Button } from '../../src/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../../src/components/ui/tooltip';
 
 import { faker } from '@faker-js/faker';
 import { type Meta } from '@storybook/react';
@@ -110,55 +115,77 @@ export const TableTitle = () => (
     data={data}
     enableRowSelection
     renderTopToolbarCustomActions={() => {
-      return <Title order={3}>Table Title</Title>;
+      return <h3 className="text-lg font-semibold">Table Title</h3>;
     }}
   />
 );
 
 export const CustomTopToolbarActions = () => (
-  <MantineReactTable
-    columns={columns}
-    data={data}
-    enableRowSelection
-    renderTopToolbarCustomActions={() => {
-      const handleCreateNewUser = () => {
-        prompt('Create new user modal');
-      };
+  <TooltipProvider>
+    <MantineReactTable
+      columns={columns}
+      data={data}
+      enableRowSelection
+      renderTopToolbarCustomActions={() => {
+        const handleCreateNewUser = () => {
+          prompt('Create new user modal');
+        };
 
-      return (
-        <div>
-          <Tooltip label="Create New User">
-            <ActionIcon onClick={handleCreateNewUser} variant={'default'}>
-              <IconPlus />
-            </ActionIcon>
-          </Tooltip>
-        </div>
-      );
-    }}
-  />
+        return (
+          <div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label="Create New User"
+                  onClick={handleCreateNewUser}
+                  size="icon"
+                  type="button"
+                  variant="outline"
+                >
+                  <IconPlus className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Create New User</TooltipContent>
+            </Tooltip>
+          </div>
+        );
+      }}
+    />
+  </TooltipProvider>
 );
 
 export const CustomBottomToolbarActions = () => (
-  <MantineReactTable
-    columns={columns}
-    data={data}
-    enableRowSelection
-    renderBottomToolbarCustomActions={() => {
-      const handleCreateNewUser = () => {
-        prompt('Create new user modal');
-      };
+  <TooltipProvider>
+    <MantineReactTable
+      columns={columns}
+      data={data}
+      enableRowSelection
+      renderBottomToolbarCustomActions={() => {
+        const handleCreateNewUser = () => {
+          prompt('Create new user modal');
+        };
 
-      return (
-        <div>
-          <Tooltip label="Create New User">
-            <ActionIcon onClick={handleCreateNewUser}>
-              <IconPlus />
-            </ActionIcon>
-          </Tooltip>
-        </div>
-      );
-    }}
-  />
+        return (
+          <div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label="Create New User"
+                  onClick={handleCreateNewUser}
+                  size="icon"
+                  type="button"
+                  variant="outline"
+                >
+                  <IconPlus className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Create New User</TooltipContent>
+            </Tooltip>
+          </div>
+        );
+      }}
+    />
+  </TooltipProvider>
 );
 
 export const CustomTopToolbarSelectionActions = () => (
@@ -186,28 +213,31 @@ export const CustomTopToolbarSelectionActions = () => (
       };
 
       return (
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="flex flex-wrap gap-2">
           <Button
-            color="error"
             disabled={table.getSelectedRowModel().flatRows.length === 0}
             onClick={handleDeactivate}
-            variant="filled"
+            size="sm"
+            type="button"
+            variant="destructive"
           >
             Deactivate
           </Button>
           <Button
-            color="success"
             disabled={table.getSelectedRowModel().flatRows.length === 0}
             onClick={handleActivate}
-            variant="filled"
+            size="sm"
+            type="button"
+            variant="secondary"
           >
             Activate
           </Button>
           <Button
-            color="info"
             disabled={table.getSelectedRowModel().flatRows.length === 0}
             onClick={handleContact}
-            variant="filled"
+            size="sm"
+            type="button"
+            variant="default"
           >
             Contact
           </Button>
@@ -242,28 +272,31 @@ export const CustomBottomToolbarSelectionActions = () => (
       };
 
       return (
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="flex flex-wrap gap-2">
           <Button
-            color="error"
             disabled={table.getSelectedRowModel().flatRows.length === 0}
             onClick={handleDeactivate}
-            variant="filled"
+            size="sm"
+            type="button"
+            variant="destructive"
           >
             Deactivate
           </Button>
           <Button
-            color="success"
             disabled={table.getSelectedRowModel().flatRows.length === 0}
             onClick={handleActivate}
-            variant="filled"
+            size="sm"
+            type="button"
+            variant="secondary"
           >
             Activate
           </Button>
           <Button
-            color="info"
             disabled={table.getSelectedRowModel().flatRows.length === 0}
             onClick={handleContact}
-            variant="filled"
+            size="sm"
+            type="button"
+            variant="default"
           >
             Contact
           </Button>
@@ -274,77 +307,113 @@ export const CustomBottomToolbarSelectionActions = () => (
 );
 
 export const ToolbarAlertBannerBottom = () => (
-  <MantineReactTable
-    columns={columns}
-    data={data}
-    enableRowSelection
-    positionToolbarAlertBanner="bottom"
-    renderTopToolbarCustomActions={({ table }) => {
-      const handleCreateNewUser = () => {
-        prompt('Create new user modal');
-      };
-      const handleRemoveUsers = () => {
-        confirm('Are you sure you want to remove the selected users?');
-      };
+  <TooltipProvider>
+    <MantineReactTable
+      columns={columns}
+      data={data}
+      enableRowSelection
+      positionToolbarAlertBanner="bottom"
+      renderTopToolbarCustomActions={({ table }) => {
+        const handleCreateNewUser = () => {
+          prompt('Create new user modal');
+        };
+        const handleRemoveUsers = () => {
+          confirm('Are you sure you want to remove the selected users?');
+        };
 
-      return (
-        <div>
-          <Tooltip label="Create New User">
-            <ActionIcon onClick={handleCreateNewUser}>
-              <IconPlus />
-            </ActionIcon>
-          </Tooltip>
-          <Tooltip label="Remove Users">
-            <span>
-              <ActionIcon
-                disabled={table.getSelectedRowModel().flatRows.length === 0}
-                onClick={handleRemoveUsers}
-              >
-                <IconTrash />
-              </ActionIcon>
-            </span>
-          </Tooltip>
-        </div>
-      );
-    }}
-  />
+        return (
+          <div className="flex gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label="Create New User"
+                  onClick={handleCreateNewUser}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <IconPlus className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Create New User</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    aria-label="Remove Users"
+                    disabled={table.getSelectedRowModel().flatRows.length === 0}
+                    onClick={handleRemoveUsers}
+                    size="icon"
+                    type="button"
+                    variant="ghost"
+                  >
+                    <IconTrash className="size-4" />
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Remove Users</TooltipContent>
+            </Tooltip>
+          </div>
+        );
+      }}
+    />
+  </TooltipProvider>
 );
 
 export const ToolbarAlertBannerBottomWithActionsAlsoBottom = () => (
-  <MantineReactTable
-    columns={columns}
-    data={data}
-    enableRowSelection
-    positionToolbarAlertBanner="bottom"
-    renderBottomToolbarCustomActions={({ table }) => {
-      const handleCreateNewUser = () => {
-        prompt('Create new user modal');
-      };
-      const handleRemoveUsers = () => {
-        confirm('Are you sure you want to remove the selected users?');
-      };
+  <TooltipProvider>
+    <MantineReactTable
+      columns={columns}
+      data={data}
+      enableRowSelection
+      positionToolbarAlertBanner="bottom"
+      renderBottomToolbarCustomActions={({ table }) => {
+        const handleCreateNewUser = () => {
+          prompt('Create new user modal');
+        };
+        const handleRemoveUsers = () => {
+          confirm('Are you sure you want to remove the selected users?');
+        };
 
-      return (
-        <div>
-          <Tooltip label="Create New User">
-            <ActionIcon onClick={handleCreateNewUser}>
-              <IconPlus />
-            </ActionIcon>
-          </Tooltip>
-          <Tooltip label="Remove Users">
-            <span>
-              <ActionIcon
-                disabled={table.getSelectedRowModel().flatRows.length === 0}
-                onClick={handleRemoveUsers}
-              >
-                <IconTrash />
-              </ActionIcon>
-            </span>
-          </Tooltip>
-        </div>
-      );
-    }}
-  />
+        return (
+          <div className="flex gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label="Create New User"
+                  onClick={handleCreateNewUser}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <IconPlus className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Create New User</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    aria-label="Remove Users"
+                    disabled={table.getSelectedRowModel().flatRows.length === 0}
+                    onClick={handleRemoveUsers}
+                    size="icon"
+                    type="button"
+                    variant="ghost"
+                  >
+                    <IconTrash className="size-4" />
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Remove Users</TooltipContent>
+            </Tooltip>
+          </div>
+        );
+      }}
+    />
+  </TooltipProvider>
 );
 
 export const renderCustomTopToolbar = () => (
@@ -352,7 +421,7 @@ export const renderCustomTopToolbar = () => (
     columns={columns}
     data={data}
     renderTopToolbar={() => (
-      <Box style={{ padding: '2rem' }}>Custom Top Toolbar</Box>
+      <div className="p-8">Custom Top Toolbar</div>
     )}
   />
 );
@@ -362,7 +431,7 @@ export const renderCustomBottomToolbar = () => (
     columns={columns}
     data={data}
     renderBottomToolbar={() => (
-      <Box style={{ padding: '2rem' }}>Custom Bottom Toolbar</Box>
+      <div className="p-8">Custom Bottom Toolbar</div>
     )}
   />
 );

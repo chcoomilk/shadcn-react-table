@@ -2,15 +2,13 @@ import clsx from 'clsx';
 
 import classes from './MRT_TableHeadCellSortLabel.module.css';
 
-import {
-  ActionIcon,
-  type ActionIconProps,
-  Indicator,
-  Tooltip,
-} from '@mantine/core';
-
 import type { MRT_Header, MRT_RowData, MRT_TableInstance } from '../../types';
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import { dataVariable } from '../../utils/style.utils';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+
+import { TooltipPortal } from '@radix-ui/react-tooltip';
 
 interface Props<TData extends MRT_RowData> extends ActionIconProps {
   header: MRT_Header<TData>;
@@ -37,52 +35,58 @@ export const MRT_TableHeadCellSortLabel = <TData extends MRT_RowData>({
 
   const sortTooltip = sorted
     ? sorted === 'desc'
-      ? localization.sortedByColumnDesc.replace('{column}', columnDef.header)
-      : localization.sortedByColumnAsc.replace('{column}', columnDef.header)
+      ? localization.sortedByColumnDesc.replace('{column}', String(columnDef.header))
+      : localization.sortedByColumnAsc.replace('{column}', String(columnDef.header))
     : column.getNextSortingOrder() === 'desc'
-      ? localization.sortByColumnDesc.replace('{column}', columnDef.header)
-      : localization.sortByColumnAsc.replace('{column}', columnDef.header);
+      ? localization.sortByColumnDesc.replace('{column}', String(columnDef.header))
+      : localization.sortByColumnAsc.replace('{column}', String(columnDef.header));
 
   const SortActionButton = (
-    <ActionIcon
+    <Button
       aria-label={sortTooltip}
+      size="icon"
+      variant="ghost"
       {...dataVariable('sorted', sorted)}
       {...rest}
       className={clsx(
-        'mrt-table-head-sort-button',
+        'mrt-table-head-sort-button h-8 w-8 text-muted-foreground',
         classes['sort-icon'],
-        rest.className,
+        rest?.className,
       )}
     >
       {sorted === 'desc' ? (
-        <IconSortDescending size="100%" />
+        <IconSortDescending className="size-4" />
       ) : sorted === 'asc' ? (
-        <IconSortAscending size="100%" />
+        <IconSortAscending className="size-4" />
       ) : (
-        <IconArrowsSort size="100%" />
+        <IconArrowsSort className="size-4" />
       )}
-    </ActionIcon>
+    </Button>
   );
 
   return (
-    <Tooltip label={sortTooltip} openDelay={1000} withinPortal>
-      {sorting.length < 2 || sortIndex === -1 ? (
-        SortActionButton
-      ) : (
-        <Indicator
-          classNames={{
-            root: clsx(
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {sorting.length < 2 || sortIndex === -1 ? (
+          SortActionButton
+        ) : (
+          <span
+            className={clsx(
+              'relative inline-flex',
               'mrt-table-head-multi-sort-indicator',
               classes['multi-sort-indicator'],
-            ),
-          }}
-          inline
-          label={sortIndex + 1}
-          offset={4}
-        >
-          {SortActionButton}
-        </Indicator>
-      )}
+            )}
+          >
+            {SortActionButton}
+            <span className="pointer-events-none absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-0.5 text-[10px] font-medium text-primary-foreground">
+              {sortIndex + 1}
+            </span>
+          </span>
+        )}
+      </TooltipTrigger>
+      <TooltipPortal>
+        <TooltipContent className='z-10' side="bottom">{sortTooltip}</TooltipContent>
+      </TooltipPortal>
     </Tooltip>
   );
 };

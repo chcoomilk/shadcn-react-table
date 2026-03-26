@@ -4,15 +4,18 @@ import classes from './MRT_TableFooterCell.module.css';
 
 import { type CSSProperties } from 'react';
 
-import { TableTh, type TableThProps, useDirection } from '@mantine/core';
-
+import { useDirection } from '../../lib/hooks';
+import { useMRTCompatibleTheme } from '../../lib/mrt-theme';
+import { type TableThProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Header,
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
+import { mergeCssVars, resolveThemeStyle } from '../../utils/mrt-style';
 import { parseCSSVarId } from '../../utils/style.utils';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { TableTh } from '../ui/table';
 
 interface Props<TData extends MRT_RowData> extends TableThProps {
   footer: MRT_Header<TData>;
@@ -26,7 +29,8 @@ export const MRT_TableFooterCell = <TData extends MRT_RowData>({
   table,
   ...rest
 }: Props<TData>) => {
-  const direction = useDirection();
+  const { dir } = useDirection();
+  const theme = useMRTCompatibleTheme();
   const {
     options: { enableColumnPinning, layoutMode, mantineTableFooterCellProps },
   } = table;
@@ -62,6 +66,49 @@ export const MRT_TableFooterCell = <TData extends MRT_RowData>({
     widthStyles.flex = `${+(columnDef.grow || 0)} 0 auto`;
   }
 
+  const rawAlign = (tableCellProps as { align?: string }).align;
+  const textAlign: 'center' | 'left' | 'right' =
+    rawAlign === 'center' || rawAlign === 'right' || rawAlign === 'left'
+      ? rawAlign
+      : columnDefType === 'group'
+        ? 'center'
+        : dir === 'rtl'
+          ? 'right'
+          : 'left';
+
+  const cssVars = mergeCssVars({
+    '--mrt-cell-align': textAlign,
+    '--mrt-table-cell-left':
+      isColumnPinned === 'left'
+        ? `${column.getStart(isColumnPinned)}`
+        : undefined,
+    '--mrt-table-cell-right':
+      isColumnPinned === 'right'
+        ? `${column.getAfter(isColumnPinned)}`
+        : undefined,
+    ...(tableCellProps as { __vars?: Record<string, string | number | undefined> })
+      .__vars,
+  });
+
+  const resolvedStyle = resolveThemeStyle(
+    tableCellProps.style as
+      | CSSProperties
+      | ((t: typeof theme) => CSSProperties)
+      | undefined,
+    theme,
+  );
+
+  const {
+    __vars: _v,
+    align: _a,
+    style: _s,
+    children: cellChildren,
+    className: cellClassName,
+    ...restCellProps
+  } = tableCellProps as TableThProps & {
+    __vars?: Record<string, string | number | undefined>;
+  };
+
   return (
     <TableTh
       colSpan={footer.colSpan}
@@ -76,37 +123,21 @@ export const MRT_TableFooterCell = <TData extends MRT_RowData>({
         (isColumnPinned === 'left' && column.getIsLastColumn(isColumnPinned)) ||
         undefined
       }
-      {...tableCellProps}
-      __vars={{
-        '--mrt-cell-align':
-          tableCellProps.align ??
-          (columnDefType === 'group'
-            ? 'center'
-            : direction.dir === 'rtl'
-              ? 'right'
-              : 'left'),
-        '--mrt-table-cell-left':
-          isColumnPinned === 'left'
-            ? `${column.getStart(isColumnPinned)}`
-            : undefined,
-        '--mrt-table-cell-right':
-          isColumnPinned === 'right'
-            ? `${column.getAfter(isColumnPinned)}`
-            : undefined,
-        ...tableCellProps?.__vars,
-      }}
+      {...restCellProps}
       className={clsx(
         classes.root,
         layoutMode?.startsWith('grid') && classes.grid,
         columnDefType === 'group' && classes.group,
-        tableCellProps?.className,
+        cellClassName,
       )}
-      style={(theme) => ({
+      style={{
+        ...cssVars,
         ...widthStyles,
-        ...parseFromValuesOrFunc(tableCellProps.style, theme),
-      })}
+        ...resolvedStyle,
+        textAlign,
+      }}
     >
-      {tableCellProps.children ??
+      {cellChildren ??
         (footer.isPlaceholder
           ? null
           : (parseFromValuesOrFunc(columnDef.Footer, {

@@ -1,13 +1,12 @@
 import { type DragEvent, type RefObject } from 'react';
 
-import { type ActionIconProps } from '@mantine/core';
-
 import {
   type MRT_CellValue,
   type MRT_Column,
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import { reorderColumn } from '../../utils/column.utils';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { MRT_GrabHandleButton } from '../buttons/MRT_GrabHandleButton';
@@ -45,6 +44,7 @@ export const MRT_TableHeadCellGrabHandle = <TData extends MRT_RowData>({
   const handleDragStart = (event: DragEvent<HTMLButtonElement>) => {
     actionIconProps?.onDragStart?.(event);
     setDraggingColumn(column);
+    event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setDragImage(
       tableHeadCellRef.current as HTMLElement,
       0,

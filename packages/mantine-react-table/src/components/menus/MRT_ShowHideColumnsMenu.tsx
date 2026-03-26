@@ -4,8 +4,6 @@ import classes from './MRT_ShowHideColumnsMenu.module.css';
 
 import { useMemo, useState } from 'react';
 
-import { Button, Flex, Menu } from '@mantine/core';
-
 import { MRT_ShowHideColumnsMenuItems } from './MRT_ShowHideColumnsMenuItems';
 
 import {
@@ -14,6 +12,8 @@ import {
   type MRT_TableInstance,
 } from '../../types';
 import { getDefaultColumnOrderIds } from '../../utils/displayColumn.utils';
+import { Button } from '../ui/button';
+import { DropdownMenuSeparator } from '../ui/dropdown-menu';
 
 interface Props<TData extends MRT_RowData> {
   table: MRT_TableInstance<TData>;
@@ -76,13 +76,14 @@ export const MRT_ShowHideColumnsMenu = <TData extends MRT_RowData>({
   );
 
   return (
-    <Menu.Dropdown className={clsx('mrt-show-hide-columns-menu', classes.root)}>
-      <Flex className={classes.content}>
+    <div className={clsx("overflow-x-clip", classes.root)}>
+      <div className={clsx('flex flex-wrap gap-1', classes.content)}>
         {enableHiding && (
           <Button
             disabled={!getIsSomeColumnsVisible()}
             onClick={() => handleToggleAllColumns(false)}
-            variant="subtle"
+            size="sm"
+            variant="ghost"
           >
             {localization.hideAll}
           </Button>
@@ -94,7 +95,8 @@ export const MRT_ShowHideColumnsMenu = <TData extends MRT_RowData>({
                 getDefaultColumnOrderIds(table.options as any, true),
               )
             }
-            variant="subtle"
+            size="sm"
+            variant="ghost"
           >
             {localization.resetOrder}
           </Button>
@@ -103,7 +105,8 @@ export const MRT_ShowHideColumnsMenu = <TData extends MRT_RowData>({
           <Button
             disabled={!getIsSomeColumnsPinned()}
             onClick={() => table.resetColumnPinning(true)}
-            variant="subtle"
+            size="sm"
+            variant="ghost"
           >
             {localization.unpinAll}
           </Button>
@@ -112,13 +115,14 @@ export const MRT_ShowHideColumnsMenu = <TData extends MRT_RowData>({
           <Button
             disabled={getIsAllColumnsVisible()}
             onClick={() => handleToggleAllColumns(true)}
-            variant="subtle"
+            size="sm"
+            variant="ghost"
           >
             {localization.showAll}
           </Button>
         )}
-      </Flex>
-      <Menu.Divider />
+      </div>
+      <DropdownMenuSeparator />
       {allColumns.map((column, index) => (
         <MRT_ShowHideColumnsMenuItems
           allColumns={allColumns}
@@ -129,6 +133,6 @@ export const MRT_ShowHideColumnsMenu = <TData extends MRT_RowData>({
           table={table}
         />
       ))}
-    </Menu.Dropdown>
+    </div>
   );
 };

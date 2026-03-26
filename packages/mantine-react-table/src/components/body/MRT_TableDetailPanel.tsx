@@ -4,8 +4,7 @@ import classes from './MRT_TableDetailPanel.module.css';
 
 import { type RefObject } from 'react';
 
-import { Collapse, TableTd, type TableTdProps, TableTr } from '@mantine/core';
-
+import { type TableTdProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Row,
   type MRT_RowData,
@@ -13,8 +12,12 @@ import {
   type MRT_TableInstance,
   type MRT_VirtualItem,
 } from '../../types';
+import { useMRTCompatibleTheme } from '../../lib/mrt-theme';
+import { mergeCssVars, resolveThemeStyle } from '../../utils/mrt-style';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { MRT_EditCellTextInput } from '../inputs/MRT_EditCellTextInput';
+import { Collapsible, CollapsibleContent } from '../ui/collapsible';
+import { TableTd, TableTr } from '../ui/table';
 
 interface Props<TData extends MRT_RowData> extends TableTdProps {
   parentRowRef: RefObject<HTMLTableRowElement>;
@@ -36,6 +39,7 @@ export const MRT_TableDetailPanel = <TData extends MRT_RowData>({
   virtualRow,
   ...rest
 }: Props<TData>) => {
+  const theme = useMRTCompatibleTheme();
   const {
     getState,
     getVisibleLeafColumns,
@@ -48,11 +52,15 @@ export const MRT_TableDetailPanel = <TData extends MRT_RowData>({
   } = table;
   const { isLoading } = getState();
 
-  const tableRowProps = parseFromValuesOrFunc(mantineTableBodyRowProps, {
+  const tableRowProps = (parseFromValuesOrFunc(mantineTableBodyRowProps, {
     isDetailPanel: true,
     row,
     table,
-  });
+  }) ?? {}) as Record<string, unknown> & {
+    __vars?: Record<string, string | number | undefined>;
+    className?: string;
+    style?: object;
+  };
 
   const tableCellProps = {
     ...parseFromValuesOrFunc(mantineDetailPanelProps, {
@@ -60,6 +68,9 @@ export const MRT_TableDetailPanel = <TData extends MRT_RowData>({
       table,
     }),
     ...rest,
+  } as TableTdProps & {
+    __vars?: Record<string, string | number | undefined>;
+    className?: string;
   };
 
   const internalEditComponents = row
@@ -74,56 +85,83 @@ export const MRT_TableDetailPanel = <TData extends MRT_RowData>({
     row.getIsExpanded() &&
     renderDetailPanel?.({ internalEditComponents, row, table });
 
+  const {
+    __vars: rowVars,
+    className: trClassName,
+    style: trStyle,
+    ...restTr
+  } = tableRowProps;
+
+  const {
+    __vars: tdVars,
+    className: tdClassName,
+    style: tdStyle,
+    ...restTd
+  } = tableCellProps as typeof tableCellProps & { style?: any };
+
+  const panelInner = rowVirtualizer ? (
+    row.getIsExpanded() && DetailPanel
+  ) : (
+    <Collapsible open={row.getIsExpanded()}>
+      <CollapsibleContent className="data-[state=closed]:hidden">
+        {DetailPanel}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+
   return (
     <TableTr
       data-index={
         renderDetailPanel ? renderedRowIndex * 2 + 1 : renderedRowIndex
       }
       data-striped={striped}
-      ref={(node: HTMLTableRowElement) => {
+      ref={(node: HTMLTableRowElement | null) => {
         if (node) {
           rowVirtualizer?.measureElement?.(node);
         }
       }}
-      {...tableRowProps}
-      __vars={{
-        '--mrt-parent-row-height': virtualRow
-          ? `${parentRowRef.current?.getBoundingClientRect()?.height}px`
-          : undefined,
-        '--mrt-virtual-row-start': virtualRow
-          ? `${virtualRow.start}px`
-          : undefined,
-        ...tableRowProps?.__vars,
-      }}
+      {...(restTr as object)}
       className={clsx(
-        'mantine-Table-tr-detail-panel',
+        'mrt-table-tr-detail-panel',
         classes.root,
         layoutMode?.startsWith('grid') && classes['root-grid'],
         virtualRow && classes['root-virtual-row'],
-        tableRowProps?.className,
+        trClassName,
       )}
+      style={{
+        ...mergeCssVars({
+          '--mrt-parent-row-height': virtualRow
+            ? `${parentRowRef.current?.getBoundingClientRect()?.height}px`
+            : undefined,
+          '--mrt-virtual-row-start': virtualRow
+            ? `${virtualRow.start}px`
+            : undefined,
+          ...rowVars,
+        }),
+        ...resolveThemeStyle(trStyle as any, theme),
+      }}
     >
       <TableTd
         colSpan={getVisibleLeafColumns().length}
-        component="td"
-        {...tableCellProps}
-        __vars={{
-          '--mrt-inner-width': `${table.getTotalSize()}px`,
-        }}
+        {...restTd}
         className={clsx(
-          'mantine-Table-td-detail-panel',
+          'mrt-table-td-detail-panel',
           classes.inner,
           layoutMode?.startsWith('grid') && classes['inner-grid'],
           row.getIsExpanded() && classes['inner-expanded'],
           virtualRow && classes['inner-virtual'],
+          row.getIsExpanded() && DetailPanel ? 'p-4' : 'p-0',
+          tdClassName,
         )}
-        p={row.getIsExpanded() && DetailPanel ? 'md' : 0}
+        style={{
+          ...mergeCssVars({
+            '--mrt-inner-width': `${table.getTotalSize()}px`,
+            ...tdVars,
+          }),
+          ...resolveThemeStyle(tdStyle, theme),
+        }}
       >
-        {rowVirtualizer ? (
-          row.getIsExpanded() && DetailPanel
-        ) : (
-          <Collapse in={row.getIsExpanded()}>{DetailPanel}</Collapse>
-        )}
+        {panelInner}
       </TableTd>
     </TableTr>
   );

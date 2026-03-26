@@ -1,5 +1,6 @@
-import { Flex, Modal, type ModalProps, Stack } from '@mantine/core';
+import type { CSSProperties, ReactNode } from 'react';
 
+import { type ModalProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Row,
   type MRT_RowData,
@@ -8,6 +9,11 @@ import {
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { MRT_EditActionButtons } from '../buttons/MRT_EditActionButtons';
 import { MRT_EditCellTextInput } from '../inputs/MRT_EditCellTextInput';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+} from '../ui/dialog';
 
 interface Props<TData extends MRT_RowData> extends Partial<ModalProps> {
   open: boolean;
@@ -36,10 +42,25 @@ export const MRT_EditRowModal = <TData extends MRT_RowData>({
   const row = (creatingRow ?? editingRow) as MRT_Row<TData>;
 
   const arg = { row, table };
-  const modalProps = {
+  const rawModalProps = {
     ...parseFromValuesOrFunc(mantineEditRowModalProps, arg),
     ...(creatingRow && parseFromValuesOrFunc(mantineCreateRowModalProps, arg)),
     ...rest,
+  };
+
+  const {
+    opened: _opened,
+    onClose: modalOnClose,
+    className: modalClassName,
+    style: modalStyle,
+    title: modalTitle,
+    children: _children,
+    ...safeModalProps
+  } = rawModalProps as ModalProps & {
+    className?: string;
+    style?: CSSProperties;
+    title?: string;
+    children?: ReactNode;
   };
 
   const internalEditComponents = row
@@ -58,39 +79,46 @@ export const MRT_EditRowModal = <TData extends MRT_RowData>({
       setEditingRow(null);
     }
     row._valuesCache = {} as any; //reset values cache
-    modalProps.onClose?.();
+    modalOnClose?.();
   };
 
   return (
-    <Modal
-      opened={open}
-      withCloseButton={false}
-      {...modalProps}
-      key={row.id}
-      onClose={handleCancel}
+    <Dialog
+      onOpenChange={(next) => {
+        if (!next) handleCancel();
+      }}
+      open={open}
     >
-      {((creatingRow &&
-        renderCreateRowModalContent?.({
-          internalEditComponents,
-          row,
-          table,
-        })) ||
-        renderEditRowModalContent?.({
-          internalEditComponents,
-          row,
-          table,
-        })) ?? (
-        <>
-          <form onSubmit={(e) => e.preventDefault()}>
-            <Stack gap="lg" pb={24} pt={16}>
-              {internalEditComponents}
-            </Stack>
-          </form>
-          <Flex justify="flex-end">
-            <MRT_EditActionButtons row={row} table={table} variant="text" />
-          </Flex>
-        </>
-      )}
-    </Modal>
+      <DialogContent
+        className={modalClassName}
+        hideClose
+        key={row.id}
+        style={modalStyle}
+        {...safeModalProps}
+      >
+        {((creatingRow &&
+          renderCreateRowModalContent?.({
+            internalEditComponents,
+            row,
+            table,
+          })) ||
+          renderEditRowModalContent?.({
+            internalEditComponents,
+            row,
+            table,
+          })) ?? (
+          <>
+            <form onSubmit={(e) => e.preventDefault()}>
+              <div className="flex flex-col gap-6 pb-6 pt-4">
+                {internalEditComponents}
+              </div>
+            </form>
+            <DialogFooter className="justify-end sm:justify-end">
+              <MRT_EditActionButtons row={row} table={table} variant="text" />
+            </DialogFooter>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };

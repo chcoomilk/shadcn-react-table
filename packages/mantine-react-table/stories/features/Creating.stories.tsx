@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { ActionIcon, Button, Select } from '@mantine/core';
-
 import {
   createRow,
   MantineReactTable,
@@ -9,6 +7,7 @@ import {
   type MRT_TableOptions,
   useMantineReactTable,
 } from '../../src';
+import { Button } from '../../src/components/ui/button';
 
 import { faker } from '@faker-js/faker';
 import { type Meta } from '@storybook/react';
@@ -106,7 +105,9 @@ export const CreateRowIndexTop = () => {
     onEditingRowSave: handleSaveRow,
     positionCreatingRow: 'top',
     renderTopToolbarCustomActions: ({ table }) => (
-      <Button onClick={() => table.setCreatingRow(true)}>Add</Button>
+      <Button onClick={() => table.setCreatingRow(true)} type="button">
+        Add
+      </Button>
     ),
   });
 
@@ -158,7 +159,9 @@ export const CreateRowIndexBottom = () => {
     onEditingRowSave: handleSaveRow,
     positionCreatingRow: 'bottom',
     renderTopToolbarCustomActions: ({ table }) => (
-      <Button onClick={() => table.setCreatingRow(true)}>Add</Button>
+      <Button onClick={() => table.setCreatingRow(true)} type="button">
+        Add
+      </Button>
     ),
   });
 
@@ -210,7 +213,9 @@ export const CreateRowIndexIndex = () => {
     onEditingRowSave: handleSaveRow,
     positionCreatingRow: 5,
     renderTopToolbarCustomActions: ({ table }) => (
-      <Button onClick={() => table.setCreatingRow(true)}>Add</Button>
+      <Button onClick={() => table.setCreatingRow(true)} type="button">
+        Add
+      </Button>
     ),
   });
 
@@ -263,7 +268,9 @@ export const CreateRowIndexIndexVirtualized = () => {
     onEditingRowSave: handleSaveRow,
     positionCreatingRow: 5,
     renderTopToolbarCustomActions: ({ table }) => (
-      <Button onClick={() => table.setCreatingRow(true)}>Add</Button>
+      <Button onClick={() => table.setCreatingRow(true)} type="button">
+        Add
+      </Button>
     ),
   });
 
@@ -305,7 +312,8 @@ export const CreateRowIndexIndexExpanding = () => {
     positionCreatingRow: creatingRowIndex,
     renderRowActions: ({ renderedRowIndex, row, table }) => {
       return (
-        <ActionIcon
+        <Button
+          aria-label="Add sub-row"
           onClick={() => {
             setCreatingRowIndex((renderedRowIndex || 0) + 1);
             table.setCreatingRow(
@@ -323,9 +331,12 @@ export const CreateRowIndexIndexExpanding = () => {
               ),
             );
           }}
+          size="icon"
+          type="button"
+          variant="ghost"
         >
-          <IconPlus size="1rem" />
-        </ActionIcon>
+          <IconPlus className="size-4" />
+        </Button>
       );
     },
     renderTopToolbarCustomActions: ({ table }) => (
@@ -334,6 +345,7 @@ export const CreateRowIndexIndexExpanding = () => {
           setCreatingRowIndex(0);
           table.setCreatingRow(true);
         }}
+        type="button"
       >
         Add
       </Button>
@@ -374,13 +386,13 @@ export const CreateWithCustomEditCell = () => {
       {
         accessorKey: 'state',
         Edit: ({ cell }) => (
-          <Select
-            data={[
-              { label: 'Alabama', value: 'Alabama' },
-              { label: 'Alaska', value: 'Alaska' },
-            ]}
-            value={cell.getValue<string>()}
-          />
+          <select
+            className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
+            defaultValue={cell.getValue<string>()}
+          >
+            <option value="Alabama">Alabama</option>
+            <option value="Alaska">Alaska</option>
+          </select>
         ),
         header: 'State',
       },
@@ -399,7 +411,9 @@ export const CreateWithCustomEditCell = () => {
     onEditingRowSave: handleSaveRow,
     positionCreatingRow: 'top',
     renderTopToolbarCustomActions: ({ table }) => (
-      <Button onClick={() => table.setCreatingRow(true)}>Add</Button>
+      <Button onClick={() => table.setCreatingRow(true)} type="button">
+        Add
+      </Button>
     ),
     state: { creatingRow },
   });

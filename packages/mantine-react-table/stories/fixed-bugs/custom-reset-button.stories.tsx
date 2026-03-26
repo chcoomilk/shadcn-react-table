@@ -1,6 +1,5 @@
-import { Button, Container } from '@mantine/core';
-
 import { MantineReactTable, useMantineReactTable } from '../../src';
+import { Button } from '../../src/components/ui/button';
 
 import { type Meta } from '@storybook/react';
 
@@ -78,12 +77,12 @@ const CustomResetButton = () => {
   });
 
   return (
-    <Container py="lg">
-      <Button mb="lg" onClick={() => table.resetColumnFilters()}>
+    <div className="mx-auto max-w-4xl space-y-6 py-8">
+      <Button onClick={() => table.resetColumnFilters()} type="button">
         Custom Reset Button
       </Button>
       <MantineReactTable table={table} />
-    </Container>
+    </div>
   );
 };
 

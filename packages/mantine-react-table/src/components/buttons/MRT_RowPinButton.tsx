@@ -1,9 +1,12 @@
+import clsx from 'clsx';
 import { type MouseEvent, useState } from 'react';
 
 import { type RowPinningPosition } from '@tanstack/react-table';
 
-import { ActionIcon, type ActionIconProps, Tooltip } from '@mantine/core';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Row,
   type MRT_RowData,
@@ -32,51 +35,48 @@ export const MRT_RowPinButton = <TData extends MRT_RowData>({
 
   const isPinned = row.getIsPinned();
 
-  const [tooltipOpened, setTooltipOpened] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const handleTogglePin = (event: MouseEvent<HTMLButtonElement>) => {
-    setTooltipOpened(false);
+    setTooltipOpen(false);
     event.stopPropagation();
     row.pin(isPinned ? false : pinningPosition);
   };
 
   return (
-    <Tooltip
-      label={isPinned ? localization.unpin : localization.pin}
-      openDelay={1000}
-      opened={tooltipOpened}
-    >
-      <ActionIcon
-        aria-label={localization.pin}
-        color="gray"
-        onClick={handleTogglePin}
-        onMouseEnter={() => setTooltipOpened(true)}
-        onMouseLeave={() => setTooltipOpened(false)}
-        size="xs"
-        style={{
-          height: '24px',
-          width: '24px',
-        }}
-        variant="subtle"
-        {...rest}
-      >
-        {isPinned ? (
-          <IconX />
-        ) : (
-          <IconPinned
-            fontSize="small"
-            style={{
-              transform: `rotate(${
-                rowPinningDisplayMode === 'sticky'
-                  ? 135
-                  : pinningPosition === 'top'
-                    ? 180
-                    : 0
-              }deg)`,
-            }}
-          />
-        )}
-      </ActionIcon>
+    <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+      <TooltipTrigger asChild>
+        <Button
+          {...rest}
+          aria-label={localization.pin}
+          className={clsx('h-6 w-6 text-muted-foreground', rest?.className)}
+          onClick={handleTogglePin}
+          onMouseEnter={() => setTooltipOpen(true)}
+          onMouseLeave={() => setTooltipOpen(false)}
+          size="icon"
+          variant="ghost"
+        >
+          {isPinned ? (
+            <IconX className="size-3.5" />
+          ) : (
+            <IconPinned
+              className="size-3.5"
+              style={{
+                transform: `rotate(${
+                  rowPinningDisplayMode === 'sticky'
+                    ? 135
+                    : pinningPosition === 'top'
+                      ? 180
+                      : 0
+                }deg)`,
+              }}
+            />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        {isPinned ? localization.unpin : localization.pin}
+      </TooltipContent>
     </Tooltip>
   );
 };

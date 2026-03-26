@@ -4,19 +4,17 @@ import classes from './MRT_ExpandButton.module.css';
 
 import { type MouseEvent } from 'react';
 
-import {
-  ActionIcon,
-  type ActionIconProps,
-  Tooltip,
-  useDirection,
-} from '@mantine/core';
-
+import { useDirection } from '../../lib/hooks';
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Row,
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { MRT_Box } from '../mrt/MRT_Box';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { MRT_EditCellTextInput } from '../inputs/MRT_EditCellTextInput';
 
 interface Props<TData extends MRT_RowData> extends ActionIconProps {
@@ -29,7 +27,7 @@ export const MRT_ExpandButton = <TData extends MRT_RowData>({
   table,
   ...rest
 }: Props<TData>) => {
-  const direction = useDirection();
+  const { dir } = useDirection();
   const {
     options: {
       icons: { IconChevronDown },
@@ -70,50 +68,55 @@ export const MRT_ExpandButton = <TData extends MRT_RowData>({
     actionIconProps?.onClick?.(event);
   };
 
-  const rtl = direction.dir === 'rtl' || positionExpandColumn === 'last';
+  const rtl = dir === 'rtl' || positionExpandColumn === 'last';
+
+  const tooltipLabel =
+    (actionIconProps?.title as string | undefined) ??
+    (isExpanded ? localization.collapse : localization.expand);
 
   return (
-    <Tooltip
-      disabled={!canExpand && !DetailPanel}
-      label={
-        actionIconProps?.title ??
-        (isExpanded ? localization.collapse : localization.expand)
-      }
-      openDelay={1000}
-      withinPortal
-    >
-      <ActionIcon
-        aria-label={localization.expand}
-        color="gray"
-        disabled={!canExpand && !DetailPanel}
-        variant="subtle"
-        {...actionIconProps}
-        __vars={{
-          '--mrt-row-depth': `${row.depth}`,
-        }}
-        className={clsx(
-          'mrt-expand-button',
-          classes.root,
-          classes[`root-${rtl ? 'rtl' : 'ltr'}`],
-          actionIconProps?.className,
-        )}
-        onClick={handleToggleExpand}
-        title={undefined}
-      >
-        {actionIconProps?.children ?? (
-          <IconChevronDown
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <MRT_Box
+          __vars={{
+            '--mrt-row-depth': `${row.depth}`,
+          }}
+          className="inline-flex"
+        >
+          <Button
+            {...actionIconProps}
+            aria-label={localization.expand}
             className={clsx(
-              'mrt-expand-button-chevron',
-              classes.chevron,
-              !canExpand && !renderDetailPanel
-                ? classes.right
-                : isExpanded
-                  ? classes.up
-                  : undefined,
+              'mrt-expand-button h-9 w-9 text-muted-foreground',
+              classes.root,
+              classes[`root-${rtl ? 'rtl' : 'ltr'}`],
+              actionIconProps?.className,
             )}
-          />
-        )}
-      </ActionIcon>
+            disabled={!canExpand && !DetailPanel}
+            onClick={handleToggleExpand}
+            size="icon"
+            variant="ghost"
+            title={undefined}
+          >
+            {actionIconProps?.children ?? (
+              <IconChevronDown
+                className={clsx(
+                  'mrt-expand-button-chevron size-4',
+                  classes.chevron,
+                  !canExpand && !renderDetailPanel
+                    ? classes.right
+                    : isExpanded
+                      ? classes.up
+                      : undefined,
+                )}
+              />
+            )}
+          </Button>
+        </MRT_Box>
+      </TooltipTrigger>
+      {!canExpand && !DetailPanel ? null : (
+        <TooltipContent side="bottom">{tooltipLabel}</TooltipContent>
+      )}
     </Tooltip>
   );
 };

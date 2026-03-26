@@ -1,5 +1,4 @@
-import { type ActionIconProps, Box } from '@mantine/core';
-
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Row,
   type MRT_RowData,
@@ -7,6 +6,7 @@ import {
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { MRT_RowPinButton } from '../buttons/MRT_RowPinButton';
+import { MRT_Box } from '../mrt/MRT_Box';
 
 interface Props<TData extends MRT_RowData> extends ActionIconProps {
   row: MRT_Row<TData>;
@@ -36,15 +36,14 @@ export const MRT_TableBodyRowPinButton = <TData extends MRT_RowData>({
 
   if (rowPinningDisplayMode === 'top-and-bottom' && !row.getIsPinned()) {
     return (
-      <Box
-        style={{
-          display: 'flex',
-          flexDirection: density === 'xs' ? 'row' : 'column',
-        }}
+      <MRT_Box
+        className={
+          density === 'xs' ? 'flex flex-row' : 'flex flex-col'
+        }
       >
         <MRT_RowPinButton pinningPosition="top" {...rowPinButtonProps} />
         <MRT_RowPinButton pinningPosition="bottom" {...rowPinButtonProps} />
-      </Box>
+      </MRT_Box>
     );
   }
 

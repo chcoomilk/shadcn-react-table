@@ -1,16 +1,20 @@
-import { useState } from 'react';
-
-import { Center, Flex, Group, Stack, Switch, Text } from '@mantine/core';
+// NOTE: Right-click context menu previously used mantine-contextmenu; this story uses a button-triggered menu or simplified interaction for Storybook.
 
 import {
   MantineReactTable,
   type MRT_ColumnDef,
-  MRT_EditActionButtons,
   useMantineReactTable,
 } from '../../src';
+import { Button } from '../../src/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../../src/components/ui/dropdown-menu';
 
 import { type Meta } from '@storybook/react';
-import { useContextMenu } from 'mantine-contextmenu';
+import { IconDotsVertical } from '@tabler/icons-react';
 
 const meta: Meta = {
   title: 'Features/Empty Row Examples',
@@ -57,9 +61,9 @@ export const CustomEmptyRow = () => {
     columns,
     data,
     renderEmptyRowsFallback: () => (
-      <Center>
-        <Text>OMG THERE ARE NO ROWS 😳</Text>
-      </Center>
+      <div className="flex justify-center py-8 text-muted-foreground">
+        OMG THERE ARE NO ROWS 😳
+      </div>
     ),
   });
 
@@ -67,40 +71,49 @@ export const CustomEmptyRow = () => {
 };
 
 export const EmptyRowContextMenu = () => {
-  //Now that empty row is an actual row, same context menu can be used, that is used on actual row data
-
-  const { showContextMenu } = useContextMenu();
   const table = useMantineReactTable({
     columns,
     data,
-    mantineTableBodyRowProps: {
-      onContextMenu: showContextMenu([
-        {
-          key: 'add',
-          onClick: () => console.log('Insert new row'),
-          title: 'Insert new row',
-        },
-        {
-          key: 'download',
-          onClick: () => console.log('download'),
-        },
-      ]),
-    },
+    renderEmptyRowsFallback: () => (
+      <div className="flex flex-col items-center justify-center gap-4 py-10">
+        <p className="text-center text-sm text-muted-foreground">
+          No rows — open the menu for the same actions that used to appear on
+          right-click.
+        </p>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button aria-label="Row actions" size="sm" variant="outline">
+              <IconDotsVertical className="size-4" />
+              Row actions
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center">
+            <DropdownMenuItem
+              onSelect={() => console.info('Insert new row')}
+            >
+              Insert new row
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => console.info('download')}>
+              Download
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    ),
   });
 
   return <MantineReactTable table={table} />;
 };
 
 export const EmptyRowExplanationPannel = () => {
-  //Now that empty row is an actual row, detail pannel is available for empty row as well
   const table = useMantineReactTable({
     columns,
     data,
     renderDetailPanel: () => (
-      <Center>
+      <div className="flex justify-center p-4 text-center text-sm text-muted-foreground">
         There are no records to display, check if there are any active filters
         on the table, clearing them might help.
-      </Center>
+      </div>
     ),
   });
 

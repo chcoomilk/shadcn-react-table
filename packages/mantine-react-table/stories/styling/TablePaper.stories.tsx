@@ -45,7 +45,7 @@ export const NoBoxShadow = () => (
     columns={columns}
     data={data}
     mantinePaperProps={{
-      shadow: 'xs',
+      className: 'shadow-none',
     }}
   />
 );

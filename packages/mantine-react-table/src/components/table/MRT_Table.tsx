@@ -2,25 +2,25 @@ import clsx from 'clsx';
 
 import classes from './MRT_Table.module.css';
 
-import { useMemo } from 'react';
+import { type CSSProperties, useMemo } from 'react';
 
 import {
-  darken,
-  lighten,
   Table,
-  type TableProps,
-  useMantineColorScheme,
-} from '@mantine/core';
+  type TableProps as UITableProps,
+} from '../ui/table';
 
 import { useMRT_ColumnVirtualizer } from '../../hooks/useMRT_ColumnVirtualizer';
+import { useMRTCompatibleTheme } from '../../lib/mrt-theme';
+import { useMRTColorScheme } from '../../lib/useColorScheme';
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
-import { parseCSSVarId } from '../../utils/style.utils';
+import { resolveThemeStyle } from '../../utils/mrt-style';
+import { adjustStripeHoverColor, parseCSSVarId } from '../../utils/style.utils';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { Memo_MRT_TableBody, MRT_TableBody } from '../body/MRT_TableBody';
 import { MRT_TableFooter } from '../footer/MRT_TableFooter';
 import { MRT_TableHead } from '../head/MRT_TableHead';
 
-interface Props<TData extends MRT_RowData> extends TableProps {
+interface Props<TData extends MRT_RowData> extends UITableProps {
   table: MRT_TableInstance<TData>;
 }
 
@@ -70,9 +70,25 @@ export const MRT_Table = <TData extends MRT_RowData>({
     table,
   };
 
-  const { colorScheme } = useMantineColorScheme();
+  const colorScheme = useMRTColorScheme();
+  const theme = useMRTCompatibleTheme();
 
-  const { stripedColor } = tableProps;
+  const { striped, stripedColor, __vars, style, className, ...restTableProps } =
+    tableProps as UITableProps & {
+      __vars?: Record<string, string | number | undefined>;
+      striped?: boolean | string;
+      stripedColor?: string;
+    };
+
+  const stripeHover = adjustStripeHoverColor(stripedColor, colorScheme);
+
+  const mergedStyle = {
+    ...columnSizeVars,
+    '--mrt-striped-row-background-color': stripedColor,
+    '--mrt-striped-row-hover-background-color': stripeHover,
+    ...(__vars as object),
+    ...resolveThemeStyle(style as any, theme),
+  } as CSSProperties;
 
   return (
     <Table
@@ -80,19 +96,10 @@ export const MRT_Table = <TData extends MRT_RowData>({
         'mrt-table',
         classes.root,
         layoutMode?.startsWith('grid') && classes['root-grid'],
-        tableProps.className,
+        className,
       )}
-      {...tableProps}
-      __vars={{
-        ...columnSizeVars,
-        '--mrt-striped-row-background-color': stripedColor,
-        '--mrt-striped-row-hover-background-color': stripedColor
-          ? colorScheme === 'dark'
-            ? lighten(stripedColor, 0.08)
-            : darken(stripedColor, 0.12)
-          : undefined,
-        ...tableProps.__vars,
-      }}
+      style={mergedStyle}
+      {...restTableProps}
     >
       {enableTableHead && <MRT_TableHead {...commonTableGroupProps} />}
       {memoMode === 'table-body' || columnSizingInfo.isResizingColumn ? (

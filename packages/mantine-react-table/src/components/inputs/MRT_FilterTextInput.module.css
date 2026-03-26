@@ -1,23 +1,23 @@
 .root {
   font-weight: normal;
   border-bottom: 2px solid
-    light-dark(var(--mantine-color-gray-3), var(--mantine-color-gray-7));
+    var(--mrt-border-color);
   min-width: auto;
   &.date-filter {
-    min-width: rem(125px);
+    min-width: 7.8125rem;
   }
   &.range-filter {
-    min-width: rem(80px);
+    min-width: 5rem;
   }
   &.not-filter-chip {
-    min-width: rem(100px);
+    min-width: 6.25rem;
   }
   width: 100%;
-  & :global(.mantine-TextInput-input) {
+  & input {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  & :global(.mantine-DateInput-input) {
+  & input {
     height: 2.1rem;
   }
 }

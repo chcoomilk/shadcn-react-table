@@ -138,9 +138,8 @@ export const CellAlignment = () => {
     enableSorting: false,
     // enableHeaderActionsHoverReveal: true,
     mantineTableProps: {
-      withColumnBorders: true,
-      withRowBorders: true,
-      withTableBorder: true,
+      className:
+        'border border-border [&_td]:border [&_td]:border-border [&_th]:border [&_th]:border-border',
     },
   });
 
@@ -156,9 +155,8 @@ export const CellAlignmentWithSorting = () => {
     enableColumnActions: false,
     enableSorting: true, // Enable sorting
     mantineTableProps: {
-      withColumnBorders: true,
-      withRowBorders: true,
-      withTableBorder: true,
+      className:
+        'border border-border [&_td]:border [&_td]:border-border [&_th]:border [&_th]:border-border',
     },
   });
 
@@ -175,9 +173,8 @@ export const CellAlignmentWithColumnDragging = () => {
     enableColumnDragging: true, // Enable column dragging
     enableSorting: false,
     mantineTableProps: {
-      withColumnBorders: true,
-      withRowBorders: true,
-      withTableBorder: true,
+      className:
+        'border border-border [&_td]:border [&_td]:border-border [&_th]:border [&_th]:border-border',
     },
   });
 

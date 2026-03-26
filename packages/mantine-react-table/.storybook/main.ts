@@ -30,7 +30,13 @@ const config: StorybookConfig = {
     autodocs: 'tag',
   },
   typescript: {
-    reactDocgen: 'react-docgen-typescript',
+    /**
+     * `react-docgen-typescript` runs the TS compiler over imported files and can hang
+     * indefinitely on large barrels / `types.ts` — Storybook stays on the loading spinner
+     * with no console error. Disable docgen here; re-enable `react-docgen` if you need
+     * Controls descriptions and can tune `reactDocgenTypescriptOptions.include` / excludes.
+     */
+    reactDocgen: false,
   },
 };
 export default config;

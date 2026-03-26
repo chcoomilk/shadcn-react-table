@@ -2,8 +2,7 @@ import clsx from 'clsx';
 
 import classes from './MRT_FilterCheckBox.module.css';
 
-import { Checkbox, type CheckboxProps, Tooltip } from '@mantine/core';
-
+import { type CheckboxProps } from '../../types/mrt-ui-props';
 import {
   type MRT_CellValue,
   type MRT_Column,
@@ -11,6 +10,9 @@ import {
   type MRT_TableInstance,
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { Checkbox } from '../ui/checkbox';
+import { Label } from '../ui/label';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 interface Props<TData extends MRT_RowData, TValue = MRT_CellValue>
   extends CheckboxProps {
@@ -35,44 +37,52 @@ export const MRT_FilterCheckbox = <TData extends MRT_RowData>({
     ...parseFromValuesOrFunc(mantineFilterCheckboxProps, arg),
     ...parseFromValuesOrFunc(columnDef.mantineFilterCheckboxProps, arg),
     ...rest,
-  } as CheckboxProps;
+  } as Record<string, unknown>;
 
   const filterLabel = localization.filterByColumn?.replace(
     '{column}',
-    columnDef.header,
+    String(columnDef.header),
   );
 
   const value = column.getFilterValue();
+  const checkedState: boolean | 'indeterminate' =
+    value === undefined ? 'indeterminate' : value === 'true';
+
+  const id = `mrt-filter-cb-${column.id}`;
 
   return (
-    <Tooltip
-      label={checkboxProps?.title ?? filterLabel}
-      openDelay={1000}
-      withinPortal
-    >
-      <Checkbox
-        checked={value === 'true'}
-        className={clsx('mrt-filter-checkbox', classes.root)}
-        indeterminate={value === undefined}
-        label={checkboxProps.title ?? filterLabel}
-        size={density === 'xs' ? 'sm' : 'md'}
-        {...checkboxProps}
-        onChange={(e) => {
-          column.setFilterValue(
-            column.getFilterValue() === undefined
-              ? 'true'
-              : column.getFilterValue() === 'true'
-                ? 'false'
-                : undefined,
-          );
-          checkboxProps?.onChange?.(e);
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          checkboxProps?.onClick?.(e);
-        }}
-        title={undefined}
-      />
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          className={clsx(
+            'mrt-filter-checkbox flex items-center gap-2',
+            classes.root,
+          )}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Checkbox
+            checked={checkedState}
+            className={density === 'xs' ? 'h-3.5 w-3.5' : 'h-4 w-4'}
+            id={id}
+            onCheckedChange={() => {
+              column.setFilterValue(
+                column.getFilterValue() === undefined
+                  ? 'true'
+                  : column.getFilterValue() === 'true'
+                    ? 'false'
+                    : undefined,
+              );
+            }}
+            {...checkboxProps}
+          />
+          <Label className="cursor-pointer font-normal" htmlFor={id}>
+            {(checkboxProps.title as string | undefined) ?? filterLabel}
+          </Label>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        {(checkboxProps.title as string | undefined) ?? filterLabel}
+      </TooltipContent>
     </Tooltip>
   );
 };

@@ -1,7 +1,16 @@
+import clsx from 'clsx';
 import { type MouseEvent } from 'react';
 
-import { ActionIcon, type ActionIconProps, Menu, Tooltip } from '@mantine/core';
+import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Row,
   type MRT_RowData,
@@ -31,43 +40,50 @@ export const MRT_RowActionMenu = <TData extends MRT_RowData>({
     },
   } = table;
 
+  const align =
+    positionActionsColumn === 'first'
+      ? 'start'
+      : positionActionsColumn === 'last'
+        ? 'end'
+        : 'center';
+
   return (
-    <Menu
-      closeOnItemClick
-      position={
-        positionActionsColumn === 'first'
-          ? 'bottom-start'
-          : positionActionsColumn === 'last'
-            ? 'bottom-end'
-            : undefined
-      }
-      withinPortal
-    >
-      <Tooltip label={localization.rowActions} openDelay={1000} withinPortal>
-        <Menu.Target>
-          <ActionIcon
-            aria-label={localization.rowActions}
-            color="gray"
-            onClick={(event) => event.stopPropagation()}
-            size="sm"
-            variant="subtle"
-            {...rest}
-          >
-            <IconDots />
-          </ActionIcon>
-        </Menu.Target>
+    <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button
+              aria-label={localization.rowActions}
+              onClick={(event) => event.stopPropagation()}
+              size="icon"
+              variant="ghost"
+              {...rest}
+              className={clsx("h-8 w-8 text-muted-foreground", rest?.className)}
+            >
+              <IconDots className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{localization.rowActions}</TooltipContent>
       </Tooltip>
-      <Menu.Dropdown onClick={(event) => event.stopPropagation()}>
+      <DropdownMenuContent align={align} onClick={(event) => event.stopPropagation()} side="bottom">
         {enableEditing && editDisplayMode !== 'table' && (
-          <Menu.Item leftSection={<IconEdit />} onClick={handleEdit}>
-            {localization.edit}
-          </Menu.Item>
+          <DropdownMenuItem
+            onSelect={() =>
+              handleEdit({ stopPropagation: () => {} } as MouseEvent)
+            }
+          >
+            <span className="flex items-center gap-2">
+              <IconEdit className="size-4 shrink-0" />
+              {localization.edit}
+            </span>
+          </DropdownMenuItem>
         )}
         {renderRowActionMenuItems?.({
           row,
           table,
         })}
-      </Menu.Dropdown>
-    </Menu>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

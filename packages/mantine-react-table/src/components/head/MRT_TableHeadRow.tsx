@@ -2,10 +2,7 @@ import clsx from 'clsx';
 
 import classes from './MRT_TableHeadRow.module.css';
 
-import { Box, TableTr, type TableTrProps } from '@mantine/core';
-
-import { MRT_TableHeadCell } from './MRT_TableHeadCell';
-
+import { type TableTrProps } from '../../types/mrt-ui-props';
 import {
   type MRT_ColumnVirtualizer,
   type MRT_Header,
@@ -15,6 +12,8 @@ import {
   type MRT_VirtualItem,
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { TableTh, TableTr } from '../ui/table';
+import { MRT_TableHeadCell } from './MRT_TableHeadCell';
 
 interface Props<TData extends MRT_RowData> extends TableTrProps {
   columnVirtualizer?: MRT_ColumnVirtualizer;
@@ -56,7 +55,11 @@ export const MRT_TableHeadRow = <TData extends MRT_RowData>({
       )}
     >
       {virtualPaddingLeft ? (
-        <Box component="th" display="flex" w={virtualPaddingLeft} />
+        <TableTh
+          aria-hidden
+          className="flex border-0 p-0"
+          style={{ width: virtualPaddingLeft, minWidth: virtualPaddingLeft }}
+        />
       ) : null}
       {(virtualColumns ?? headerGroup.headers).map(
         (headerOrVirtualHeader, renderedHeaderIndex) => {
@@ -79,7 +82,11 @@ export const MRT_TableHeadRow = <TData extends MRT_RowData>({
         },
       )}
       {virtualPaddingRight ? (
-        <Box component="th" display="flex" w={virtualPaddingRight} />
+        <TableTh
+          aria-hidden
+          className="flex border-0 p-0"
+          style={{ width: virtualPaddingRight, minWidth: virtualPaddingRight }}
+        />
       ) : null}
     </TableTr>
   );

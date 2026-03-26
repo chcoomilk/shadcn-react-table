@@ -2,26 +2,26 @@ import clsx from 'clsx';
 
 import classes from './MRT_TablePagination.module.css';
 
-import {
-  ActionIcon,
-  Box,
-  Group,
-  Pagination,
-  type PaginationProps,
-  Select,
-  Text,
-} from '@mantine/core';
-
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { MRT_Box } from '../mrt/MRT_Box';
+import { Button } from '../ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 
 const defaultRowsPerPage = [5, 10, 15, 20, 25, 30, 50, 100].map((x) =>
   x.toString(),
 );
 
-interface Props<TData extends MRT_RowData> extends Partial<PaginationProps> {
+interface Props<TData extends MRT_RowData> {
   position?: 'bottom' | 'top';
   table: MRT_TableInstance<TData>;
+  [key: string]: unknown;
 }
 
 export const MRT_TablePagination = <TData extends MRT_RowData>({
@@ -71,95 +71,195 @@ export const MRT_TablePagination = <TData extends MRT_RowData>({
     showRowsPerPage = true,
     withEdges = showFirstLastPageButtons,
     ...rest
-  } = paginationProps ?? {};
+  } = (paginationProps ?? {}) as {
+    rowsPerPageOptions?: string[];
+    showRowsPerPage?: boolean;
+    withEdges?: boolean;
+  };
 
   const needsTopMargin =
     position === 'top' && enableToolbarInternalActions && !showGlobalFilter;
 
+  const rppOptions =
+    (paginationProps as { rowsPerPageOptions?: string[] })
+      ?.rowsPerPageOptions ?? defaultRowsPerPage;
+
   return (
-    <Box
+    <MRT_Box
       className={clsx(
         'mrt-table-pagination',
         classes.root,
         needsTopMargin && classes['with-top-margin'],
       )}
     >
-      {paginationProps?.showRowsPerPage !== false && (
-        <Group gap="xs">
-          <Text id="rpp-label">{localization.rowsPerPage}</Text>
-          <Select
-            allowDeselect={false}
-            aria-labelledby="rpp-label"
-            className={classes.pagesize}
-            data={paginationProps?.rowsPerPageOptions ?? defaultRowsPerPage}
-            onChange={(value: null | string) => setPageSize(+(value as string))}
-            value={pageSize.toString()}
-          />
-        </Group>
-      )}
+      {(paginationProps as { showRowsPerPage?: boolean }).showRowsPerPage !==
+        false &&
+        showRowsPerPage && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm" id="rpp-label">
+              {localization.rowsPerPage}
+            </span>
+            <Select
+              onValueChange={(value) => setPageSize(+value)}
+              value={pageSize.toString()}
+            >
+              <SelectTrigger
+                aria-labelledby="rpp-label"
+                className={clsx('h-9 w-[4.5rem]', classes.pagesize)}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {rppOptions.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       {paginationDisplayMode === 'pages' ? (
-        <Pagination
-          firstIcon={IconChevronLeftPipe}
-          lastIcon={IconChevronRightPipe}
-          nextIcon={IconChevronRight}
-          onChange={(newPageIndex) => setPageIndex(newPageIndex - 1)}
-          previousIcon={IconChevronLeft}
-          total={numberOfPages}
-          value={pageIndex + 1}
-          withEdges={withEdges}
-          {...rest}
-        />
+        <div className="flex flex-wrap items-center gap-1" {...rest}>
+          {withEdges && (
+            <Button
+              aria-label={localization.goToFirstPage}
+              className="h-8 w-8"
+              disabled={pageIndex <= 0}
+              onClick={() => setPageIndex(0)}
+              size="icon"
+              variant="ghost"
+            >
+              <IconChevronLeftPipe className="size-4" />
+            </Button>
+          )}
+          <Button
+            aria-label={localization.goToPreviousPage}
+            className="h-8 w-8"
+            disabled={pageIndex <= 0}
+            onClick={() => setPageIndex(pageIndex - 1)}
+            size="icon"
+            variant="ghost"
+          >
+            <IconChevronLeft className="size-4" />
+          </Button>
+          {(() => {
+            const siblingsCount = 2;
+            let pages: (number | 'ellipsis-start' | 'ellipsis-end')[];
+
+            if (numberOfPages <= 9) {
+              pages = Array.from({ length: numberOfPages }, (_, i) => i);
+            } else {
+              const start = Math.max(1, pageIndex - siblingsCount);
+              const end = Math.min(numberOfPages - 2, pageIndex + siblingsCount);
+
+              pages = [0];
+              if (start > 1) pages.push('ellipsis-start');
+              for (let i = start; i <= end; i++) pages.push(i);
+              if (end < numberOfPages - 2) pages.push('ellipsis-end');
+              pages.push(numberOfPages - 1);
+            }
+
+            return pages.map((page) =>
+              typeof page === 'string' ? (
+                <span
+                  className="flex h-8 min-w-8 items-center justify-center text-sm"
+                  key={page}
+                >
+                  …
+                </span>
+              ) : (
+                <Button
+                  aria-label={`${localization.goToNextPage?.split(' ').slice(0, 2).join(' ')} ${page + 1}`}
+                  className="h-8 min-w-8 px-2"
+                  key={page}
+                  onClick={() => setPageIndex(page)}
+                  size="sm"
+                  variant={pageIndex === page ? 'default' : 'ghost'}
+                >
+                  {page + 1}
+                </Button>
+              ),
+            );
+          })()}
+          <Button
+            aria-label={localization.goToNextPage}
+            className="h-8 w-8"
+            disabled={lastRowIndex >= totalRowCount}
+            onClick={() => setPageIndex(pageIndex + 1)}
+            size="icon"
+            variant="ghost"
+          >
+            <IconChevronRight className="size-4" />
+          </Button>
+          {withEdges && (
+            <Button
+              aria-label={localization.goToLastPage}
+              className="h-8 w-8"
+              disabled={lastRowIndex >= totalRowCount}
+              onClick={() => setPageIndex(numberOfPages - 1)}
+              size="icon"
+              variant="ghost"
+            >
+              <IconChevronRightPipe className="size-4" />
+            </Button>
+          )}
+        </div>
       ) : paginationDisplayMode === 'default' ? (
         <>
-          <Text>{`${
+          <span className="text-sm">{`${
             lastRowIndex === 0 ? 0 : (firstRowIndex + 1).toLocaleString()
           }-${lastRowIndex.toLocaleString()} ${
             localization.of
-          } ${totalRowCount.toLocaleString()}`}</Text>
-          <Group gap={6}>
+          } ${totalRowCount.toLocaleString()}`}</span>
+          <div className="flex items-center gap-1.5">
             {withEdges && (
-              <ActionIcon
+              <Button
                 aria-label={localization.goToFirstPage}
-                color="gray"
+                className="h-8 w-8 text-muted-foreground"
                 disabled={pageIndex <= 0}
                 onClick={() => setPageIndex(0)}
-                variant="subtle"
+                size="icon"
+                variant="ghost"
               >
-                <IconChevronLeftPipe />
-              </ActionIcon>
+                <IconChevronLeftPipe className="size-4" />
+              </Button>
             )}
-            <ActionIcon
+            <Button
               aria-label={localization.goToPreviousPage}
-              color="gray"
+              className="h-8 w-8 text-muted-foreground"
               disabled={pageIndex <= 0}
               onClick={() => setPageIndex(pageIndex - 1)}
-              variant="subtle"
+              size="icon"
+              variant="ghost"
             >
-              <IconChevronLeft />
-            </ActionIcon>
-            <ActionIcon
+              <IconChevronLeft className="size-4" />
+            </Button>
+            <Button
               aria-label={localization.goToNextPage}
-              color="gray"
+              className="h-8 w-8 text-muted-foreground"
               disabled={lastRowIndex >= totalRowCount}
               onClick={() => setPageIndex(pageIndex + 1)}
-              variant="subtle"
+              size="icon"
+              variant="ghost"
             >
-              <IconChevronRight />
-            </ActionIcon>
+              <IconChevronRight className="size-4" />
+            </Button>
             {withEdges && (
-              <ActionIcon
+              <Button
                 aria-label={localization.goToLastPage}
-                color="gray"
+                className="h-8 w-8 text-muted-foreground"
                 disabled={lastRowIndex >= totalRowCount}
                 onClick={() => setPageIndex(numberOfPages - 1)}
-                variant="subtle"
+                size="icon"
+                variant="ghost"
               >
-                <IconChevronRightPipe />
-              </ActionIcon>
+                <IconChevronRightPipe className="size-4" />
+              </Button>
             )}
-          </Group>
+          </div>
         </>
       ) : null}
-    </Box>
+    </MRT_Box>
   );
 };

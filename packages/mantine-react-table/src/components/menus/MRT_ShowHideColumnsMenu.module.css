@@ -2,9 +2,9 @@
   max-height: calc(80vh - 100px);
   overflow-y: auto;
   .content {
-    padding-top: rem(4px);
-    padding-bottom: rem(4px);
-    gap: rem(8px);
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    gap: 0.5rem;
     justify-content: space-between;
   }
 }

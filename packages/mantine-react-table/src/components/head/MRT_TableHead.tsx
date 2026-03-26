@@ -2,22 +2,16 @@ import clsx from 'clsx';
 
 import classes from './MRT_TableHead.module.css';
 
-import {
-  TableTh,
-  TableThead,
-  type TableTheadProps,
-  TableTr,
-} from '@mantine/core';
-
-import { MRT_TableHeadRow } from './MRT_TableHeadRow';
-
+import { type TableTheadProps } from '../../types/mrt-ui-props';
 import {
   type MRT_ColumnVirtualizer,
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { TableTh, TableThead, TableTr } from '../ui/table';
 import { MRT_ToolbarAlertBanner } from '../toolbar/MRT_ToolbarAlertBanner';
+import { MRT_TableHeadRow } from './MRT_TableHeadRow';
 
 interface Props<TData extends MRT_RowData> extends TableTheadProps {
   columnVirtualizer?: MRT_ColumnVirtualizer;
@@ -61,12 +55,15 @@ export const MRT_TableHead = <TData extends MRT_RowData>({
           ? classes['root-grid']
           : classes['root-table-row-group'],
         stickyHeader && classes['root-sticky'],
+        stickyHeader &&
+          layoutMode?.startsWith('grid') &&
+          'sticky top-0 z-10',
+        stickyHeader &&
+          !layoutMode?.startsWith('grid') &&
+          'relative',
         tableHeadProps?.className,
       )}
-      pos={
-        stickyHeader && layoutMode?.startsWith('grid') ? 'sticky' : 'relative'
-      }
-      ref={(ref: HTMLTableSectionElement) => {
+      ref={(ref: HTMLTableSectionElement | null) => {
         tableHeadRef.current = ref;
         if (tableHeadProps?.ref) {
           // @ts-ignore

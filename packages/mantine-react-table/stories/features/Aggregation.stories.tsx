@@ -1,5 +1,3 @@
-import { Box, Stack } from '@mantine/core';
-
 import {
   MantineReactTable,
   MRT_AggregationFns,
@@ -46,24 +44,26 @@ const columns = [
       <>
         Max by{' '}
         {table.getColumn(cell.row.groupingColumnId ?? '').columnDef.header}:{' '}
-        <Box style={{ color: 'green', fontWeight: 'bold' }}>
+        <span className="font-bold text-green-600">
           {cell.getValue<number>()}
-        </Box>
+        </span>
       </>
     ),
     aggregationFn: 'max',
     Footer: () => (
-      <Stack>
+      <div className="flex flex-col gap-1">
         Average Age:
-        <Box color="orange">{Math.round(averageAge)}</Box>
-      </Stack>
+        <span className="font-medium text-orange-500">
+          {Math.round(averageAge)}
+        </span>
+      </div>
     ),
     header: 'Age',
   },
   {
     accessorKey: 'gender',
     GroupedCell: ({ cell }) => (
-      <Box style={{ color: 'primary.main' }}>{cell.getValue<string>()}</Box>
+      <span className="font-medium text-primary">{cell.getValue<string>()}</span>
     ),
     header: 'Gender',
   },
@@ -77,14 +77,14 @@ const columns = [
       <>
         Average by{' '}
         {table.getColumn(cell.row.groupingColumnId ?? '').columnDef.header}:{' '}
-        <Box style={{ color: 'green', fontWeight: 'bold' }}>
+        <span className="font-bold text-green-600">
           {cell.getValue<number>()?.toLocaleString?.('en-US', {
             currency: 'USD',
             maximumFractionDigits: 0,
             minimumFractionDigits: 0,
             style: 'currency',
           })}
-        </Box>
+        </span>
       </>
     ),
     aggregationFn: 'mean',
@@ -100,17 +100,17 @@ const columns = [
     ),
     enableGrouping: false,
     Footer: () => (
-      <Stack>
+      <div className="flex flex-col gap-1">
         Average Salary:
-        <Box color="orange">
+        <span className="font-medium text-orange-500">
           {averageSalary?.toLocaleString?.('en-US', {
             currency: 'USD',
             maximumFractionDigits: 0,
             minimumFractionDigits: 0,
             style: 'currency',
           })}
-        </Box>
-      </Stack>
+        </span>
+      </div>
     ),
     header: 'Salary',
   },
@@ -162,17 +162,17 @@ export const MultiAggregationPerColumn = () => (
           <>
             Min by{' '}
             {table.getColumn(cell.row.groupingColumnId ?? '').columnDef.header}:{' '}
-            <Box style={{ color: 'green', fontWeight: 'bold' }}>
+            <span className="font-bold text-green-600">
               {cell.getValue<[number, number]>()[0]}
-            </Box>
+            </span>
             <br />
             Max by{' '}
             {
               table.getColumn(cell.row.groupingColumnId ?? '').columnDef.header
             }:{' '}
-            <Box style={{ color: 'green', fontWeight: 'bold' }}>
+            <span className="font-bold text-green-600">
               {cell.getValue<[number, number]>()[1]}
-            </Box>
+            </span>
           </>
         ),
         //manually set multiple aggregation functions
@@ -181,17 +181,19 @@ export const MultiAggregationPerColumn = () => (
           MRT_AggregationFns.max(columnId, leafRows, childRows),
         ],
         Footer: () => (
-          <Stack>
+          <div className="flex flex-col gap-1">
             Average Age:
-            <Box color="orange">{Math.round(averageAge)}</Box>
-          </Stack>
+            <span className="font-medium text-orange-500">
+              {Math.round(averageAge)}
+            </span>
+          </div>
         ),
         header: 'Age',
       },
       {
         accessorKey: 'gender',
         GroupedCell: ({ cell }) => (
-          <Box style={{ color: 'primary.main' }}>{cell.getValue<string>()}</Box>
+          <span className="font-medium text-primary">{cell.getValue<string>()}</span>
         ),
         header: 'Gender',
       },
@@ -204,15 +206,15 @@ export const MultiAggregationPerColumn = () => (
         AggregatedCell: ({ cell, table }) => (
           <>
             Count:{' '}
-            <Box style={{ color: 'green', fontWeight: 'bold' }}>
+            <span className="font-bold text-green-600">
               {cell.getValue<[number, number]>()?.[0]}
-            </Box>
+            </span>
             <br />
             Average by{' '}
             {
               table.getColumn(cell.row.groupingColumnId ?? '').columnDef.header
             }:{' '}
-            <Box style={{ color: 'green', fontWeight: 'bold' }}>
+            <span className="font-bold text-green-600">
               {cell
                 .getValue<[number, number]>()?.[1]
                 ?.toLocaleString?.('en-US', {
@@ -221,7 +223,7 @@ export const MultiAggregationPerColumn = () => (
                   minimumFractionDigits: 0,
                   style: 'currency',
                 })}
-            </Box>
+            </span>
           </>
         ),
         aggregationFn: ['count', 'mean'], //multiple aggregation functions
@@ -237,17 +239,17 @@ export const MultiAggregationPerColumn = () => (
         ),
         enableGrouping: false,
         Footer: () => (
-          <Stack>
+          <div className="flex flex-col gap-1">
             Average Salary:
-            <Box color="orange">
+            <span className="font-medium text-orange-500">
               {averageSalary?.toLocaleString?.('en-US', {
                 currency: 'USD',
                 maximumFractionDigits: 0,
                 minimumFractionDigits: 0,
                 style: 'currency',
               })}
-            </Box>
-          </Stack>
+            </span>
+          </div>
         ),
         header: 'Salary',
       },

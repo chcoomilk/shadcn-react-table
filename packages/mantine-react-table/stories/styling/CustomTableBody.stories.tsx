@@ -1,5 +1,3 @@
-import { Text } from '@mantine/core';
-
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
 
 import { faker } from '@faker-js/faker';
@@ -61,6 +59,8 @@ export const CustomEmptyRowsJSX = () => (
   <MantineReactTable
     columns={columns}
     data={[]}
-    renderEmptyRowsFallback={() => <Text>OMG THERE ARE NO ROWS 😳</Text>}
+    renderEmptyRowsFallback={() => (
+      <span className="text-muted-foreground">OMG THERE ARE NO ROWS 😳</span>
+    )}
   />
 );

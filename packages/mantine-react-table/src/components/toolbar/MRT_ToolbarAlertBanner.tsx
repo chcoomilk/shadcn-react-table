@@ -4,21 +4,13 @@ import classes from './MRT_ToolbarAlertBanner.module.css';
 
 import { Fragment, useMemo } from 'react';
 
-import {
-  ActionIcon,
-  Alert,
-  type AlertProps,
-  Badge,
-  Button,
-  Collapse,
-  Flex,
-  Stack,
-} from '@mantine/core';
-
+import { type AlertProps } from '../../types/mrt-ui-props';
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
 import { getMRT_SelectAllHandler } from '../../utils/row.utils';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { MRT_SelectCheckbox } from '../inputs/MRT_SelectCheckbox';
+import { Alert } from '../ui/alert';
+import { Button } from '../ui/button';
 
 interface Props<TData extends MRT_RowData> extends Partial<AlertProps> {
   stackAlertBanner?: boolean;
@@ -71,7 +63,7 @@ export const MRT_ToolbarAlertBanner = <TData extends MRT_RowData>({
   );
 
   const selectedAlert = selectedRowCount ? (
-    <Flex align="center" gap="sm">
+    <div className="flex flex-wrap items-center gap-3">
       {localization.selectedCountOfRowCountRowsSelected
         ?.replace('{selectedCount}', selectedRowCount.toString())
         ?.replace('{rowCount}', totalRowCount.toString())}
@@ -79,53 +71,60 @@ export const MRT_ToolbarAlertBanner = <TData extends MRT_RowData>({
         onClick={(event) =>
           getMRT_SelectAllHandler({ table })(event, false, true)
         }
-        size="compact-xs"
-        variant="subtle"
+        size="sm"
+        variant="ghost"
       >
         {localization.clearSelection}
       </Button>
-    </Flex>
+    </div>
   ) : null;
 
   const groupedAlert =
     grouping.length > 0 ? (
-      <Flex>
+      <div className="flex flex-wrap items-center gap-2">
         {localization.groupedBy}{' '}
         {grouping.map((columnId, index) => (
           <Fragment key={`${index}-${columnId}`}>
             {index > 0 ? localization.thenBy : ''}
-            <Badge
-              className={classes['alert-badge']}
-              rightSection={
-                <ActionIcon
-                  color="white"
-                  onClick={() => table.getColumn(columnId).toggleGrouping()}
-                  size="xs"
-                  variant="subtle"
-                >
-                  <IconX style={{ transform: 'scale(0.8)' }} />
-                </ActionIcon>
-              }
-              variant="filled"
+            <span
               {...badgeProps}
+              className={clsx(
+                'inline-flex items-center gap-1 rounded-full border border-primary bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground',
+                classes['alert-badge'],
+                badgeProps?.className,
+              )}
             >
-              {table.getColumn(columnId).columnDef.header}{' '}
-            </Badge>
+              {table.getColumn(columnId).columnDef.header}
+              <button
+                aria-label="Remove grouping"
+                className="rounded-sm p-0.5 hover:bg-primary/80"
+                onClick={() => table.getColumn(columnId).toggleGrouping()}
+                type="button"
+              >
+                <IconX className="size-3" />
+              </button>
+            </span>
           </Fragment>
         ))}
-      </Flex>
+      </div>
     ) : null;
 
+  const open = showAlertBanner || !!selectedAlert || !!groupedAlert;
+
+  if (!open) {
+    return null;
+  }
+
   return (
-    <Collapse
-      in={showAlertBanner || !!selectedAlert || !!groupedAlert}
-      transitionDuration={stackAlertBanner ? 200 : 0}
+    <div
+      className={clsx(
+        stackAlertBanner && 'duration-200 animate-in fade-in',
+      )}
     >
       <Alert
-        color="blue"
-        icon={false}
         {...alertProps}
         className={clsx(
+          'border-blue-200 bg-blue-50 text-blue-950 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-100',
           classes.alert,
           stackAlertBanner &&
             !positionToolbarAlertBanner &&
@@ -141,9 +140,10 @@ export const MRT_ToolbarAlertBanner = <TData extends MRT_RowData>({
           selectedAlert,
           table,
         }) ?? (
-          <Flex
+          <div
             className={clsx(
               classes['toolbar-alert'],
+              'flex gap-3',
               positionToolbarAlertBanner === 'head-overlay' &&
                 classes['head-overlay'],
               density,
@@ -154,14 +154,14 @@ export const MRT_ToolbarAlertBanner = <TData extends MRT_RowData>({
               positionToolbarAlertBanner === 'head-overlay' && (
                 <MRT_SelectCheckbox table={table} />
               )}
-            <Stack>
+            <div className="flex flex-col gap-2">
               {alertProps?.children}
               {selectedAlert}
               {groupedAlert}
-            </Stack>
-          </Flex>
+            </div>
+          </div>
         )}
       </Alert>
-    </Collapse>
+    </div>
   );
 };

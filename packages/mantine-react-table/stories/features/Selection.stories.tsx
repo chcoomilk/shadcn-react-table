@@ -1,13 +1,12 @@
 import { useState } from 'react';
 
-import { Button, Flex } from '@mantine/core';
-
 import {
   getMRT_RowSelectionHandler,
   MantineReactTable,
   type MRT_ColumnDef,
   MRT_SelectCheckbox,
 } from '../../src';
+import { Button } from '../../src/components/ui/button';
 
 import { faker } from '@faker-js/faker';
 import { type Meta } from '@storybook/react';
@@ -116,7 +115,7 @@ export const SelectionEnabledWithRowClick = () => (
     enableRowSelection
     mantineTableBodyRowProps={({ renderedRowIndex, row, table }) => ({
       onClick: (event) =>
-        getMRT_RowSelectionHandler()({ event, renderedRowIndex, row, table }),
+        getMRT_RowSelectionHandler({ renderedRowIndex, row, table })(event),
       style: {
         cursor: 'pointer',
         userSelect: 'none',
@@ -259,19 +258,21 @@ export const CustomAlertBannerHeadOverlay = () => (
     }}
     positionToolbarAlertBanner="head-overlay"
     renderToolbarAlertBannerContent={({ selectedAlert, table }) => (
-      <Flex justify="space-between">
-        <Flex gap="xl" p="6px">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-1.5">
+        <div className="flex items-center gap-6">
           <MRT_SelectCheckbox table={table} /> {selectedAlert}{' '}
-        </Flex>
-        <Flex gap="md">
-          <Button color="blue" leftSection={<IconSend />}>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button className="gap-2" size="sm" type="button" variant="default">
+            <IconSend className="size-4 shrink-0" />
             Email Selected
           </Button>
-          <Button color="red" leftSection={<IconTrash />}>
+          <Button className="gap-2" size="sm" type="button" variant="destructive">
+            <IconTrash className="size-4 shrink-0" />
             Remove Selected
           </Button>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
     )}
   />
 );

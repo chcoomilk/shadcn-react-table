@@ -2,10 +2,10 @@ import clsx from 'clsx';
 
 import classes from './MRT_ProgressBar.module.css';
 
-import { Collapse, Progress, type ProgressProps } from '@mantine/core';
-
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
+import { type ProgressProps } from '../../types/mrt-ui-props';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { Progress } from '../ui/progress';
 
 interface Props<TData extends MRT_RowData> extends Partial<ProgressProps> {
   isTopToolbar: boolean;
@@ -31,22 +31,25 @@ export const MRT_ProgressBar = <TData extends MRT_RowData>({
     ...rest,
   };
 
+  if (!isSaving && !showProgressBars) {
+    return null;
+  }
+
   return (
-    <Collapse
+    <div
       className={clsx(
         classes.collapse,
+        'overflow-hidden transition-all duration-200',
         isTopToolbar && classes['collapse-top'],
       )}
-      in={isSaving || showProgressBars}
     >
       <Progress
-        animated
         aria-busy="true"
         aria-label="Loading"
-        radius={0}
         value={100}
         {...linearProgressProps}
+        className={clsx("h-1 rounded-none shimmer", linearProgressProps?.className)}
       />
-    </Collapse>
+    </div>
   );
 };

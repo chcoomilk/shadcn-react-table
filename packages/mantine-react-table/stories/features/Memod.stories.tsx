@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
-import { Button } from '@mantine/core';
-
+import { Button } from '../../src/components/ui/button';
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
 
 import { faker } from '@faker-js/faker';
@@ -91,7 +90,7 @@ export const NoMemos = () => {
       enableStickyHeader
       initialState={{ pagination: { pageIndex: 0, pageSize: 100 } }}
       renderTopToolbarCustomActions={() => (
-        <Button onClick={handleRegenerateData} variant="filled">
+        <Button onClick={handleRegenerateData} variant="default">
           Regenerate Data
         </Button>
       )}
@@ -120,7 +119,7 @@ export const MemoCells = () => {
       initialState={{ pagination: { pageIndex: 0, pageSize: 100 } }}
       memoMode="cells"
       renderTopToolbarCustomActions={() => (
-        <Button onClick={handleRegenerateData} variant="filled">
+        <Button onClick={handleRegenerateData} variant="default">
           Regenerate Data
         </Button>
       )}
@@ -149,7 +148,7 @@ export const MemoRows = () => {
       initialState={{ pagination: { pageIndex: 0, pageSize: 100 } }}
       memoMode="rows"
       renderTopToolbarCustomActions={() => (
-        <Button onClick={handleRegenerateData} variant="filled">
+        <Button onClick={handleRegenerateData} variant="default">
           Regenerate Data
         </Button>
       )}
@@ -178,7 +177,7 @@ export const MemoTableBody = () => {
       initialState={{ pagination: { pageIndex: 0, pageSize: 100 } }}
       memoMode="table-body"
       renderTopToolbarCustomActions={() => (
-        <Button onClick={handleRegenerateData} variant="filled">
+        <Button onClick={handleRegenerateData} variant="default">
           Regenerate Data
         </Button>
       )}

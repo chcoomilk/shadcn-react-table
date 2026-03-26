@@ -1,6 +1,8 @@
-import { Button, Menu } from '@mantine/core';
+import type { MouseEvent } from 'react';
 
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
+import { Button } from '../../src/components/ui/button';
+import { DropdownMenuItem } from '../../src/components/ui/dropdown-menu';
 
 import { faker } from '@faker-js/faker';
 import { type Meta } from '@storybook/react';
@@ -65,8 +67,18 @@ export const RowClickAndRowMenuActions = () => {
       }}
       renderRowActionMenuItems={() => (
         <>
-          <Menu.Item leftSection={<IconUserCircle />}>View Profile</Menu.Item>
-          <Menu.Item leftSection={<IconSend />}>Send Email</Menu.Item>
+          <DropdownMenuItem onSelect={() => {}}>
+            <span className="flex items-center gap-2">
+              <IconUserCircle className="size-4 shrink-0" />
+              View Profile
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => {}}>
+            <span className="flex items-center gap-2">
+              <IconSend className="size-4 shrink-0" />
+              Send Email
+            </span>
+          </DropdownMenuItem>
         </>
       )}
     />
@@ -86,7 +98,14 @@ export const RowClickAndRowButtonctions = () => {
         },
       }}
       renderRowActions={() => (
-        <Button onClick={(e) => e.stopPropagation()}>Test</Button>
+        <Button
+          onClick={(e: MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
+          size="sm"
+          type="button"
+          variant="secondary"
+        >
+          Test
+        </Button>
       )}
     />
   );

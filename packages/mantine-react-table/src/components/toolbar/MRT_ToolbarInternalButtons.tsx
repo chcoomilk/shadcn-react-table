@@ -2,8 +2,7 @@ import clsx from 'clsx';
 
 import classes from './MRT_ToolbarInternalButtons.module.css';
 
-import { Flex, type FlexProps } from '@mantine/core';
-
+import { type FlexProps } from '../../types/mrt-ui-props';
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
 import { MRT_ShowHideColumnsButton } from '../buttons/MRT_ShowHideColumnsButton';
 import { MRT_ToggleDensePaddingButton } from '../buttons/MRT_ToggleDensePaddingButton';
@@ -36,10 +35,10 @@ export const MRT_ToolbarInternalButtons = <TData extends MRT_RowData>({
   } = table;
 
   return (
-    <Flex
+    <div
       {...rest}
       className={clsx(
-        'mrt-toolbar-internal-buttons',
+        'mrt-toolbar-internal-buttons flex flex-wrap items-center gap-1',
         classes.root,
         rest?.className,
       )}
@@ -67,6 +66,6 @@ export const MRT_ToolbarInternalButtons = <TData extends MRT_RowData>({
           )}
         </>
       )}
-    </Flex>
+    </div>
   );
 };

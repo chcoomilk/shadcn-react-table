@@ -1,22 +1,22 @@
 import classes from './MRT_ShowHideColumnsMenuItems.module.css';
 
 import {
+  type CSSProperties,
   type Dispatch,
   type DragEvent,
   type SetStateAction,
+  useId,
   useRef,
   useState,
 } from 'react';
 
-import {
-  Box,
-  Menu,
-  Switch,
-  Text,
-  Tooltip,
-  useMantineTheme,
-} from '@mantine/core';
+import { MRT_Box } from '../mrt/MRT_Box';
+import { DropdownMenuItem } from '../ui/dropdown-menu';
+import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
+import { useMRTCompatibleTheme } from '../../lib/mrt-theme';
 import {
   type MRT_CellValue,
   type MRT_Column,
@@ -43,7 +43,8 @@ export const MRT_ShowHideColumnsMenuItems = <TData extends MRT_RowData>({
   setHoveredColumn,
   table,
 }: Props<TData>) => {
-  const theme = useMantineTheme();
+  const theme = useMRTCompatibleTheme();
+  const switchId = useId();
   const {
     getState,
     options: {
@@ -73,7 +74,7 @@ export const MRT_ShowHideColumnsMenuItems = <TData extends MRT_RowData>({
     }
   };
 
-  const menuItemRef = useRef<HTMLElement>(null);
+  const menuItemRef = useRef<HTMLDivElement>(null);
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -102,19 +103,22 @@ export const MRT_ShowHideColumnsMenuItems = <TData extends MRT_RowData>({
 
   return (
     <>
-      <Menu.Item
+      <DropdownMenuItem
         className={classes.root}
-        component="span"
+        onSelect={(e) => e.preventDefault()}
+        ref={menuItemRef}
+        style={
+          {
+            '--_column-depth': `${(column.depth + 0.5) * 2}rem`,
+            '--_hover-color': getPrimaryColor(theme),
+          } as CSSProperties
+        }
+        {...(dataVariable('dragging', isDragging) ?? {})}
+        {...(dataVariable('order-hovered', hoveredColumn?.id === column.id) ??
+          {})}
         onDragEnter={handleDragEnter}
-        ref={menuItemRef as any}
-        style={{
-          '--_column-depth': `${(column.depth + 0.5) * 2}rem`,
-          '--_hover-color': getPrimaryColor(theme),
-        }}
-        {...dataVariable('dragging', isDragging)}
-        {...dataVariable('order-hovered', hoveredColumn?.id === column.id)}
       >
-        <Box className={classes.menu}>
+        <MRT_Box className={classes.menu}>
           {columnDefType !== 'group' &&
             enableColumnOrdering &&
             !allColumns.some(
@@ -127,33 +131,39 @@ export const MRT_ShowHideColumnsMenuItems = <TData extends MRT_RowData>({
                 table={table}
               />
             ) : (
-              <Box className={classes.grab} />
+              <MRT_Box className={classes.grab} />
             ))}
           {enableColumnPinning &&
             (column.getCanPin() ? (
               <MRT_ColumnPinningButtons column={column} table={table} />
             ) : (
-              <Box className={classes.pin} />
+              <MRT_Box className={classes.pin} />
             ))}
           {enableHiding ? (
-            <Tooltip
-              label={localization.toggleVisibility}
-              openDelay={1000}
-              withinPortal
-            >
-              <Switch
-                checked={switchChecked}
-                className={classes.switch}
-                disabled={!column.getCanHide()}
-                label={columnDef.header}
-                onChange={() => handleToggleColumnHidden(column)}
-              />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-1 items-center gap-2">
+                  <Switch
+                    checked={switchChecked}
+                    className={classes.switch}
+                    disabled={!column.getCanHide()}
+                    id={switchId}
+                    onCheckedChange={() => handleToggleColumnHidden(column)}
+                  />
+                  <Label className="cursor-pointer" htmlFor={switchId}>
+                    {columnDef.header}
+                  </Label>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                {localization.toggleVisibility}
+              </TooltipContent>
             </Tooltip>
           ) : (
-            <Text className={classes.header}>{columnDef.header}</Text>
+            <span className={classes.header}>{columnDef.header}</span>
           )}
-        </Box>
-      </Menu.Item>
+        </MRT_Box>
+      </DropdownMenuItem>
       {column.columns?.map((c: MRT_Column<TData>, i) => (
         <MRT_ShowHideColumnsMenuItems
           allColumns={allColumns}

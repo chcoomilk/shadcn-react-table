@@ -13,15 +13,10 @@ import {
   useState,
 } from 'react';
 
-import {
-  Skeleton,
-  TableTd,
-  type TableTdProps,
-  useDirection,
-} from '@mantine/core';
-
 import { MRT_TableBodyCellValue } from './MRT_TableBodyCellValue';
 
+import { useDirection } from '../../lib/hooks';
+import { useMRTCompatibleTheme } from '../../lib/mrt-theme';
 import {
   type MRT_Cell,
   type MRT_CellValue,
@@ -29,10 +24,14 @@ import {
   type MRT_TableInstance,
   type MRT_VirtualItem,
 } from '../../types';
+import { type TableTdProps } from '../../types/mrt-ui-props';
+import { mergeCssVars, resolveThemeStyle } from '../../utils/mrt-style';
 import { parseCSSVarId } from '../../utils/style.utils';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { MRT_CopyButton } from '../buttons/MRT_CopyButton';
 import { MRT_EditCellTextInput } from '../inputs/MRT_EditCellTextInput';
+import { Skeleton } from '../ui/skeleton';
+import { TableTd } from '../ui/table';
 
 interface Props<TData extends MRT_RowData, TValue = MRT_CellValue>
   extends TableTdProps {
@@ -55,7 +54,8 @@ export const MRT_TableBodyCell = <TData extends MRT_RowData>({
   virtualCell,
   ...rest
 }: Props<TData>) => {
-  const direction = useDirection();
+  const { dir } = useDirection();
+  const theme = useMRTCompatibleTheme();
 
   const {
     getState,
@@ -126,11 +126,10 @@ export const MRT_TableBodyCell = <TData extends MRT_RowData>({
     width: `calc(var(--col-${parseCSSVarId(column.id)}-size) * 1px)`,
   };
   if (layoutMode === 'grid') {
-    widthStyles.flex = `${
-      [0, false].includes(columnDef.grow!)
+    widthStyles.flex = `${[0, false].includes(columnDef.grow!)
         ? 0
         : `var(--col-${parseCSSVarId(column.id)}-size)`
-    } 0 auto`;
+      } 0 auto`;
   } else if (layoutMode === 'grid-no-grow') {
     widthStyles.flex = `${+(columnDef.grow || 0)} 0 auto`;
   }
@@ -195,7 +194,7 @@ export const MRT_TableBodyCell = <TData extends MRT_RowData>({
     table,
   };
 
-  const cellHoverRevealDivRef = useRef<any>(null);
+  const cellHoverRevealDivRef = useRef<HTMLDivElement | null>(null);
   const [isCellContentOverflowing, setIsCellContentOverflowing] =
     useState(false);
 
@@ -219,7 +218,13 @@ export const MRT_TableBodyCell = <TData extends MRT_RowData>({
     }
 
     if (showSkeletons !== false && (isLoading || showSkeletons)) {
-      return <Skeleton height={20} width={skeletonWidth} {...skeletonProps} />;
+      return (
+        <Skeleton
+          className="h-5"
+          style={{ width: skeletonWidth, ...skeletonProps?.style }}
+          {...skeletonProps}
+        />
+      );
     }
 
     if (
@@ -253,6 +258,39 @@ export const MRT_TableBodyCell = <TData extends MRT_RowData>({
     return <MRT_TableBodyCellValue {...cellValueProps} />;
   };
 
+  const {
+    __vars: cellVars,
+    align: cellAlign,
+    children: cellChildren,
+    className: cellClassName,
+    style: cellStyleProp,
+    ...restCellProps
+  } = tableCellProps as {
+    __vars?: Record<string, number | string | undefined>;
+  } & TableTdProps;
+
+  const resolvedStyle = resolveThemeStyle(
+    cellStyleProp as
+    | ((t: typeof theme) => CSSProperties)
+    | CSSProperties
+    | undefined,
+    theme,
+  );
+
+  const cssVars = mergeCssVars({
+    '--mrt-cell-align':
+      cellAlign ?? (dir === 'rtl' ? 'right' : 'left'),
+    '--mrt-table-cell-left':
+      isColumnPinned === 'left'
+        ? `${column.getStart(isColumnPinned)}`
+        : undefined,
+    '--mrt-table-cell-right':
+      isColumnPinned === 'right'
+        ? `${column.getAfter(isColumnPinned)}`
+        : undefined,
+    ...cellVars,
+  });
+
   return (
     <TableTd
       data-column-pinned={isColumnPinned || undefined}
@@ -275,53 +313,41 @@ export const MRT_TableBodyCell = <TData extends MRT_RowData>({
           columnResizeDirection) ||
         undefined
       }
-      {...tableCellProps}
-      __vars={{
-        '--mrt-cell-align':
-          tableCellProps.align ?? (direction.dir === 'rtl' ? 'right' : 'left'),
-        '--mrt-table-cell-left':
-          isColumnPinned === 'left'
-            ? `${column.getStart(isColumnPinned)}`
-            : undefined,
-        '--mrt-table-cell-right':
-          isColumnPinned === 'right'
-            ? `${column.getAfter(isColumnPinned)}`
-            : undefined,
-        ...tableCellProps.__vars,
-      }}
+      {...restCellProps}
       className={clsx(
         classes.root,
         layoutMode?.startsWith('grid') && classes['root-grid'],
         virtualCell && classes['root-virtualized'],
         isEditable &&
-          editDisplayMode === 'cell' &&
-          classes['root-cursor-pointer'],
+        editDisplayMode === 'cell' &&
+        classes['root-cursor-pointer'],
         isEditable &&
-          ['cell', 'table'].includes(editDisplayMode ?? '') &&
-          columnDefType !== 'display' &&
-          classes['root-editable-hover'],
+        ['cell', 'table'].includes(editDisplayMode ?? '') &&
+        columnDefType !== 'display' &&
+        classes['root-editable-hover'],
         columnDefType === 'data' && classes['root-data-col'],
         density === 'xs' && classes['root-nowrap'],
         columnDef.enableCellHoverReveal && classes['root-cell-hover-reveal'],
-        tableCellProps?.className,
+        cellClassName,
       )}
       onDoubleClick={handleDoubleClick}
       onDragEnter={handleDragEnter}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      style={(theme) => ({
+      style={{
+        ...cssVars,
         ...widthStyles,
-        ...parseFromValuesOrFunc(tableCellProps.style, theme),
-      })}
+        ...resolvedStyle,
+      }}
     >
       <>
-        {tableCellProps.children ??
+        {cellChildren ??
           (columnDef.enableCellHoverReveal ? (
             <div
               className={clsx(
                 columnDef.enableCellHoverReveal &&
-                  !(isCreating || isEditing) &&
-                  classes['cell-hover-reveal'],
+                !(isCreating || isEditing) &&
+                classes['cell-hover-reveal'],
                 isCellContentOverflowing && classes['overflowing'],
               )}
               ref={cellHoverRevealDivRef}

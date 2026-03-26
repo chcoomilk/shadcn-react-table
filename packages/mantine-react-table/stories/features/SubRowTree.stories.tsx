@@ -1,5 +1,3 @@
-import { DirectionProvider } from '@mantine/core';
-
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
 
 import { MRT_Localization_HE } from '../../src/locales/he';
@@ -110,32 +108,28 @@ export const SubRowTreeEnabledPositionLast = () => (
 
 export const SubRowTreeEnabledDefaultRTL = () => {
   return (
-    <DirectionProvider initialDirection="rtl">
-      <div style={{ direction: 'rtl' }}>
-        <MantineReactTable
-          columns={columns}
-          data={data}
-          enableExpanding
-          localization={MRT_Localization_HE}
-        />
-      </div>
-    </DirectionProvider>
+    <div dir="rtl">
+      <MantineReactTable
+        columns={columns}
+        data={data}
+        enableExpanding
+        localization={MRT_Localization_HE}
+      />
+    </div>
   );
 };
 
 export const SubRowTreeEnabledDefaultRTLAndPositionLast = () => {
   return (
-    <DirectionProvider initialDirection="rtl">
-      <div style={{ direction: 'rtl' }}>
-        <MantineReactTable
-          columns={columns}
-          data={data}
-          enableExpanding
-          localization={MRT_Localization_HE}
-          positionActionsColumn="last"
-        />
-      </div>
-    </DirectionProvider>
+    <div dir="rtl">
+      <MantineReactTable
+        columns={columns}
+        data={data}
+        enableExpanding
+        localization={MRT_Localization_HE}
+        positionActionsColumn="last"
+      />
+    </div>
   );
 };
 

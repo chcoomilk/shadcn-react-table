@@ -4,16 +4,10 @@ import classes from './MRT_TableBodyRow.module.css';
 
 import { type DragEvent, memo, useMemo, useRef } from 'react';
 
-import {
-  Box,
-  type TableProps,
-  TableTr,
-  type TableTrProps,
-} from '@mantine/core';
-
 import { Memo_MRT_TableBodyCell, MRT_TableBodyCell } from './MRT_TableBodyCell';
 import { MRT_TableDetailPanel } from './MRT_TableDetailPanel';
 
+import { useMRTCompatibleTheme } from '../../lib/mrt-theme';
 import {
   type MRT_Cell,
   type MRT_ColumnVirtualizer,
@@ -24,8 +18,11 @@ import {
   type MRT_TableInstance,
   type MRT_VirtualItem,
 } from '../../types';
+import { type TableProps, type TableTrProps } from '../../types/mrt-ui-props';
+import { mergeCssVars, resolveThemeStyle } from '../../utils/mrt-style';
 import { getIsRowSelected } from '../../utils/row.utils';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { TableTd, TableTr } from '../ui/table';
 
 interface Props<TData extends MRT_RowData> extends TableTrProps {
   columnVirtualizer?: MRT_ColumnVirtualizer;
@@ -68,6 +65,7 @@ export const MRT_TableBodyRow = <TData extends MRT_RowData>({
     refs: { tableFooterRef, tableHeadRef },
     setHoveredRow,
   } = table;
+  const theme = useMRTCompatibleTheme();
   const {
     density,
     draggingColumn,
@@ -100,6 +98,15 @@ export const MRT_TableBodyRow = <TData extends MRT_RowData>({
     ...rest,
   };
 
+  const {
+    __vars: rowVarsExtra,
+    className: rowClassName,
+    style: rowStyle,
+    ...restRowProps
+  } = tableRowProps as {
+    __vars?: Record<string, number | string | undefined>;
+  } & TableTrProps;
+
   const [bottomPinnedIndex, topPinnedIndex] = useMemo(() => {
     if (
       !enableRowPinning ||
@@ -131,7 +138,7 @@ export const MRT_TableBodyRow = <TData extends MRT_RowData>({
 
   const rowHeight =
     // @ts-ignore
-    parseInt(tableRowProps?.style?.height, 10) ||
+    parseInt((rowStyle as { height?: string })?.height, 10) ||
     (defaultRowHeightByDensity[density] ?? defaultRowHeightByDensity['md']);
 
   const handleDragEnter = (_e: DragEvent) => {
@@ -156,6 +163,28 @@ export const MRT_TableBodyRow = <TData extends MRT_RowData>({
     }
   }
 
+  const rowCssVars = mergeCssVars({
+    ...rowVarsExtra,
+    '--mrt-pinned-row-bottom':
+      !virtualRow && bottomPinnedIndex !== undefined && isRowPinned
+        ? `${
+            bottomPinnedIndex * rowHeight +
+            (enableStickyFooter ? tableFooterHeight - 1 : 0)
+          }`
+        : undefined,
+    '--mrt-pinned-row-top': virtualRow
+      ? undefined
+      : topPinnedIndex !== undefined && isRowPinned
+        ? `${
+            topPinnedIndex * rowHeight +
+            (enableStickyHeader || isFullScreen ? tableHeadHeight - 1 : 0)
+          }`
+        : undefined,
+    '--mrt-virtual-row-start': virtualRow
+      ? `${virtualRow.start}`
+      : undefined,
+  });
+
   return (
     <>
       <TableTr
@@ -166,43 +195,34 @@ export const MRT_TableBodyRow = <TData extends MRT_RowData>({
         data-selected={isRowSelected || undefined}
         data-striped={striped}
         onDragEnter={handleDragEnter}
-        ref={(node: HTMLTableRowElement) => {
+        ref={(node: HTMLTableRowElement | null) => {
           if (node) {
             rowRef.current = node;
             rowVirtualizer?.measureElement(node);
           }
         }}
-        {...tableRowProps}
-        __vars={{
-          ...tableRowProps?.__vars,
-          '--mrt-pinned-row-bottom':
-            !virtualRow && bottomPinnedIndex !== undefined && isRowPinned
-              ? `${
-                  bottomPinnedIndex * rowHeight +
-                  (enableStickyFooter ? tableFooterHeight - 1 : 0)
-                }`
-              : undefined,
-          '--mrt-pinned-row-top': virtualRow
-            ? undefined
-            : topPinnedIndex !== undefined && isRowPinned
-              ? `${
-                  topPinnedIndex * rowHeight +
-                  (enableStickyHeader || isFullScreen ? tableHeadHeight - 1 : 0)
-                }`
-              : undefined,
-          '--mrt-virtual-row-start': virtualRow
-            ? `${virtualRow.start}`
-            : undefined,
-        }}
+        {...restRowProps}
         className={clsx(
           classes.root,
           layoutMode?.startsWith('grid') && classes['root-grid'],
           virtualRow && classes['root-virtualized'],
-          tableRowProps?.className,
+          rowClassName,
         )}
+        style={{
+          ...rowCssVars,
+          ...resolveThemeStyle(rowStyle as any, theme),
+        }}
       >
         {virtualPaddingLeft ? (
-          <Box component="td" display="flex" w={virtualPaddingLeft} />
+          <TableTd
+            aria-hidden
+            className="border-0 p-0"
+            style={{
+              display: 'flex',
+              minWidth: virtualPaddingLeft,
+              width: virtualPaddingLeft,
+            }}
+          />
         ) : null}
         {children
           ? children
@@ -238,7 +258,15 @@ export const MRT_TableBodyRow = <TData extends MRT_RowData>({
               },
             )}
         {virtualPaddingRight ? (
-          <Box component="td" display="flex" w={virtualPaddingRight} />
+          <TableTd
+            aria-hidden
+            className="border-0 p-0"
+            style={{
+              display: 'flex',
+              minWidth: virtualPaddingRight,
+              width: virtualPaddingRight,
+            }}
+          />
         ) : null}
       </TableTr>
       {renderDetailPanel && !row.getIsGrouped() && (

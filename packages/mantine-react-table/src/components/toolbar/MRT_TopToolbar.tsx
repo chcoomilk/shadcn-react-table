@@ -3,18 +3,18 @@ import clsx from 'clsx';
 import commonClasses from './common.styles.module.css';
 import classes from './MRT_TopToolbar.module.css';
 
-import { Box, type BoxProps, Flex } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
-
 import { MRT_ProgressBar } from './MRT_ProgressBar';
 import { MRT_TablePagination } from './MRT_TablePagination';
 import { MRT_ToolbarAlertBanner } from './MRT_ToolbarAlertBanner';
 import { MRT_ToolbarDropZone } from './MRT_ToolbarDropZone';
 import { MRT_ToolbarInternalButtons } from './MRT_ToolbarInternalButtons';
 
+import { useMediaQuery } from '../../lib/hooks';
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
+import { type BoxProps } from '../../types/mrt-ui-props';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { MRT_GlobalFilterTextInput } from '../inputs/MRT_GlobalFilterTextInput';
+import { MRT_Box } from '../mrt/MRT_Box';
 
 interface Props<TData extends MRT_RowData> extends BoxProps {
   table: MRT_TableInstance<TData>;
@@ -65,7 +65,7 @@ export const MRT_TopToolbar = <TData extends MRT_RowData>({
   };
 
   return (
-    <Box
+    <MRT_Box
       {...toolbarProps}
       className={clsx(
         commonClasses['common-toolbar-styles'],
@@ -73,11 +73,12 @@ export const MRT_TopToolbar = <TData extends MRT_RowData>({
         isFullScreen && classes['root-fullscreen'],
         toolbarProps?.className,
       )}
-      ref={(node: HTMLDivElement) => {
+      ref={(node: HTMLDivElement | null) => {
         if (node) {
           topToolbarRef.current = node;
-          if (toolbarProps?.ref) {
-            toolbarProps.ref.current = node;
+          const r = toolbarProps?.ref;
+          if (r && typeof r === 'object' && 'current' in r) {
+            (r as { current: HTMLDivElement | null }).current = node;
           }
         }
       }}
@@ -91,9 +92,10 @@ export const MRT_TopToolbar = <TData extends MRT_RowData>({
       {['both', 'top'].includes(positionToolbarDropZone ?? '') && (
         <MRT_ToolbarDropZone table={table} />
       )}
-      <Flex
+      <div
         className={clsx(
           classes['actions-container'],
+          'flex flex-wrap items-center gap-2',
           stackAlertBanner && classes['actions-container-stack-alert'],
         )}
       >
@@ -102,26 +104,26 @@ export const MRT_TopToolbar = <TData extends MRT_RowData>({
         )}
         {renderTopToolbarCustomActions?.({ table }) ?? <span />}
         {enableToolbarInternalActions ? (
-          <Flex justify={'end'} wrap={'wrap-reverse'}>
+          <div className="ml-auto flex flex-wrap-reverse justify-end gap-1">
             {enableGlobalFilter && positionGlobalFilter === 'right' && (
               <MRT_GlobalFilterTextInput {...globalFilterProps} />
             )}
             <MRT_ToolbarInternalButtons table={table} />
-          </Flex>
+          </div>
         ) : (
           enableGlobalFilter &&
           positionGlobalFilter === 'right' && (
             <MRT_GlobalFilterTextInput {...globalFilterProps} />
           )
         )}
-      </Flex>
+      </div>
       {enablePagination &&
         ['both', 'top'].includes(positionPagination ?? '') && (
-          <Flex justify="end">
+          <div className="flex justify-end">
             <MRT_TablePagination position="top" table={table} />
-          </Flex>
+          </div>
         )}
       <MRT_ProgressBar isTopToolbar table={table} />
-    </Box>
+    </MRT_Box>
   );
 };

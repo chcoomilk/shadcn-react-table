@@ -1,4 +1,4 @@
-import { MantineProvider } from '@mantine/core';
+import type { CSSProperties } from 'react';
 
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
 
@@ -41,56 +41,32 @@ export const DefaultTheme = () => (
   <MantineReactTable columns={columns} data={data} enableRowSelection />
 );
 
-export const CustomLightTheme = () => {
-  return (
-    <MantineProvider
-      theme={{
-        colors: {
-          'bright-pink': [
-            '#F0BBDD',
-            '#ED9BCF',
-            '#EC7CC3',
-            '#ED5DB8',
-            '#F13EAF',
-            '#F71FA7',
-            '#FF00A1',
-            '#E00890',
-            '#C50E82',
-            '#AD1374',
-          ],
-        },
-        primaryColor: 'bright-pink',
-        primaryShade: { dark: 7, light: 6 },
-      }}
-    >
-      <MantineReactTable columns={columns} data={data} enableRowSelection />
-    </MantineProvider>
-  );
-};
+/** Use the Storybook toolbar primary-color control or set `--primary` on a wrapper. */
+export const CustomLightTheme = () => (
+  <div
+    className="rounded-md"
+    style={
+      {
+        ['--primary' as string]: '330 81% 45%',
+        ['--ring' as string]: '330 81% 45%',
+      } as CSSProperties
+    }
+  >
+    <MantineReactTable columns={columns} data={data} enableRowSelection />
+  </div>
+);
 
-export const CustomDarkTheme = () => {
-  return (
-    <MantineProvider
-      theme={{
-        colors: {
-          'bright-pink': [
-            '#F0BBDD',
-            '#ED9BCF',
-            '#EC7CC3',
-            '#ED5DB8',
-            '#F13EAF',
-            '#F71FA7',
-            '#FF00A1',
-            '#E00890',
-            '#C50E82',
-            '#AD1374',
-          ],
-        },
-        primaryColor: 'bright-pink',
-        primaryShade: { dark: 7, light: 6 },
-      }}
+export const CustomDarkTheme = () => (
+  <div className="dark rounded-md">
+    <div
+      style={
+        {
+          ['--primary' as string]: '330 81% 60%',
+          ['--ring' as string]: '330 81% 60%',
+        } as CSSProperties
+      }
     >
       <MantineReactTable columns={columns} data={data} enableRowSelection />
-    </MantineProvider>
-  );
-};
+    </div>
+  </div>
+);

@@ -1,6 +1,8 @@
+import clsx from 'clsx';
+
 import classes from './MRT_ColumnActionMenu.module.css';
 
-import { ActionIcon, Menu, type MenuProps, Tooltip } from '@mantine/core';
+import type { ComponentPropsWithoutRef } from 'react';
 
 import {
   type MRT_Header,
@@ -8,14 +10,35 @@ import {
   type MRT_TableInstance,
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
-interface Props<TData extends MRT_RowData> extends MenuProps {
+import { TooltipPortal } from '@radix-ui/react-tooltip';
+
+interface Props<TData extends MRT_RowData>
+  extends Omit<
+    ComponentPropsWithoutRef<typeof DropdownMenuContent>,
+    'children' | 'onChange'
+  > {
   header: MRT_Header<TData>;
+  /** Mantine Menu `onChange` — maps to Radix `onOpenChange` */
+  onChange?: (opened: boolean) => void;
+  /** Mantine Menu `opened` — maps to Radix `open` */
+  opened?: boolean;
   table: MRT_TableInstance<TData>;
 }
 
 export const MRT_ColumnActionMenu = <TData extends MRT_RowData>({
   header,
+  onChange,
+  opened,
   table,
   ...rest
 }: Props<TData>) => {
@@ -112,36 +135,42 @@ export const MRT_ColumnActionMenu = <TData extends MRT_RowData>({
       {enableSorting && column.getCanSort() && (
         <>
           {enableSortingRemoval !== false && (
-            <Menu.Item
+            <DropdownMenuItem
               disabled={!column.getIsSorted()}
-              leftSection={<IconClearAll />}
-              onClick={handleClearSort}
+              onSelect={() => handleClearSort()}
             >
-              {localization.clearSort}
-            </Menu.Item>
+              <span className="flex items-center gap-2">
+                <IconClearAll className="size-4 shrink-0" />
+                {localization.clearSort}
+              </span>
+            </DropdownMenuItem>
           )}
-          <Menu.Item
+          <DropdownMenuItem
             disabled={column.getIsSorted() === 'asc'}
-            leftSection={<IconSortAscending />}
-            onClick={handleSortAsc}
+            onSelect={() => handleSortAsc()}
           >
-            {localization.sortByColumnAsc?.replace(
-              '{column}',
-              String(columnDef.header),
-            )}
-          </Menu.Item>
-          <Menu.Item
+            <span className="flex items-center gap-2">
+              <IconSortAscending className="size-4 shrink-0" />
+              {localization.sortByColumnAsc?.replace(
+                '{column}',
+                String(columnDef.header),
+              )}
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
             disabled={column.getIsSorted() === 'desc'}
-            leftSection={<IconSortDescending />}
-            onClick={handleSortDesc}
+            onSelect={() => handleSortDesc()}
           >
-            {localization.sortByColumnDesc?.replace(
-              '{column}',
-              String(columnDef.header),
-            )}
-          </Menu.Item>
+            <span className="flex items-center gap-2">
+              <IconSortDescending className="size-4 shrink-0" />
+              {localization.sortByColumnDesc?.replace(
+                '{column}',
+                String(columnDef.header),
+              )}
+            </span>
+          </DropdownMenuItem>
           {(enableColumnFilters || enableGrouping || enableHiding) && (
-            <Menu.Divider key={3} />
+            <DropdownMenuSeparator key={3} />
           )}
         </>
       )}
@@ -149,126 +178,149 @@ export const MRT_ColumnActionMenu = <TData extends MRT_RowData>({
         columnFilterDisplayMode !== 'popover' &&
         column.getCanFilter() && (
           <>
-            <Menu.Item
+            <DropdownMenuItem
               disabled={!column.getFilterValue()}
-              leftSection={<IconFilterOff />}
-              onClick={handleClearFilter}
+              onSelect={() => handleClearFilter()}
             >
-              {localization.clearFilter}
-            </Menu.Item>
-            <Menu.Item
-              leftSection={<IconFilter />}
-              onClick={handleFilterByColumn}
-            >
-              {localization.filterByColumn?.replace(
-                '{column}',
-                String(columnDef.header),
-              )}
-            </Menu.Item>
-            {(enableGrouping || enableHiding) && <Menu.Divider key={2} />}
+              <span className="flex items-center gap-2">
+                <IconFilterOff className="size-4 shrink-0" />
+                {localization.clearFilter}
+              </span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => handleFilterByColumn()}>
+              <span className="flex items-center gap-2">
+                <IconFilter className="size-4 shrink-0" />
+                {localization.filterByColumn?.replace(
+                  '{column}',
+                  String(columnDef.header),
+                )}
+              </span>
+            </DropdownMenuItem>
+            {(enableGrouping || enableHiding) && <DropdownMenuSeparator key={2} />}
           </>
         )}
       {enableGrouping && column.getCanGroup() && (
         <>
-          <Menu.Item
-            leftSection={<IconBoxMultiple />}
-            onClick={handleGroupByColumn}
-          >
-            {localization[
-              column.getIsGrouped() ? 'ungroupByColumn' : 'groupByColumn'
-            ]?.replace('{column}', String(columnDef.header))}
-          </Menu.Item>
-          {enableColumnPinning && <Menu.Divider />}
+          <DropdownMenuItem onSelect={() => handleGroupByColumn()}>
+            <span className="flex items-center gap-2">
+              <IconBoxMultiple className="size-4 shrink-0" />
+              {
+                localization[
+                  column.getIsGrouped() ? 'ungroupByColumn' : 'groupByColumn'
+                ]?.replace('{column}', String(columnDef.header))
+              }
+            </span>
+          </DropdownMenuItem>
+          {enableColumnPinning && <DropdownMenuSeparator />}
         </>
       )}
       {enableColumnPinning && column.getCanPin() && (
         <>
-          <Menu.Item
+          <DropdownMenuItem
             disabled={column.getIsPinned() === 'left' || !column.getCanPin()}
-            leftSection={<IconPinned className={classes.left} />}
-            onClick={() => handlePinColumn('left')}
+            onSelect={() => handlePinColumn('left')}
           >
-            {localization.pinToLeft}
-          </Menu.Item>
-          <Menu.Item
+            <span className="flex items-center gap-2">
+              <IconPinned className={classes.left + ' size-4 shrink-0'} />
+              {localization.pinToLeft}
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
             disabled={column.getIsPinned() === 'right' || !column.getCanPin()}
-            leftSection={<IconPinned className={classes.right} />}
-            onClick={() => handlePinColumn('right')}
+            onSelect={() => handlePinColumn('right')}
           >
-            {localization.pinToRight}
-          </Menu.Item>
-          <Menu.Item
+            <span className="flex items-center gap-2">
+              <IconPinned className={classes.right + ' size-4 shrink-0'} />
+              {localization.pinToRight}
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
             disabled={!column.getIsPinned()}
-            leftSection={<IconPinnedOff />}
-            onClick={() => handlePinColumn(false)}
+            onSelect={() => handlePinColumn(false)}
           >
-            {localization.unpin}
-          </Menu.Item>
-          {enableHiding && <Menu.Divider />}
+            <span className="flex items-center gap-2">
+              <IconPinnedOff className="size-4 shrink-0" />
+              {localization.unpin}
+            </span>
+          </DropdownMenuItem>
+          {enableHiding && <DropdownMenuSeparator />}
         </>
       )}
       {enableColumnResizing && column.getCanResize() && (
-        <Menu.Item
+        <DropdownMenuItem
           disabled={!columnSizing[column.id]}
           key={0}
-          leftSection={<IconArrowAutofitContent />}
-          onClick={handleResetColumnSize}
+          onSelect={() => handleResetColumnSize()}
         >
-          {localization.resetColumnSize}
-        </Menu.Item>
+          <span className="flex items-center gap-2">
+            <IconArrowAutofitContent className="size-4 shrink-0" />
+            {localization.resetColumnSize}
+          </span>
+        </DropdownMenuItem>
       )}
       {enableHiding && (
         <>
-          <Menu.Item
+          <DropdownMenuItem
             disabled={!column.getCanHide()}
             key={0}
-            leftSection={<IconEyeOff />}
-            onClick={handleHideColumn}
+            onSelect={() => handleHideColumn()}
           >
-            {localization.hideColumn?.replace(
-              '{column}',
-              String(columnDef.header),
-            )}
-          </Menu.Item>
-          <Menu.Item
+            <span className="flex items-center gap-2">
+              <IconEyeOff className="size-4 shrink-0" />
+              {localization.hideColumn?.replace(
+                '{column}',
+                String(columnDef.header),
+              )}
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
             disabled={
               !Object.values(columnVisibility).filter((visible) => !visible)
                 .length
             }
             key={1}
-            leftSection={<IconColumns />}
-            onClick={handleShowAllColumns}
+            onSelect={() => handleShowAllColumns()}
           >
-            {localization.showAllColumns?.replace(
-              '{column}',
-              String(columnDef.header),
-            )}
-          </Menu.Item>
+            <span className="flex items-center gap-2">
+              <IconColumns className="size-4 shrink-0" />
+              {localization.showAllColumns?.replace(
+                '{column}',
+                String(columnDef.header),
+              )}
+            </span>
+          </DropdownMenuItem>
         </>
       )}
     </>
   );
 
   return (
-    <Menu closeOnItemClick position="bottom-start" withinPortal {...rest}>
-      <Tooltip
-        label={actionIconProps?.title ?? localization.columnActions}
-        openDelay={1000}
-        withinPortal
-      >
-        <Menu.Target>
-          <ActionIcon
-            aria-label={localization.columnActions}
-            color="gray"
-            size="sm"
-            variant="subtle"
-            {...actionIconProps}
-          >
-            <IconDotsVertical size="100%" />
-          </ActionIcon>
-        </Menu.Target>
+    <DropdownMenu
+      modal={false}
+      onOpenChange={onChange}
+      open={opened}
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button
+              aria-label={localization.columnActions}
+              size="icon"
+              variant="ghost"
+              {...actionIconProps}
+              className={clsx("h-8 w-8 text-muted-foreground", actionIconProps?.className)}
+            >
+              <IconDotsVertical className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipPortal>
+          <TooltipContent side="bottom">
+            {actionIconProps?.title ?? localization.columnActions}
+          </TooltipContent>
+        </TooltipPortal>
       </Tooltip>
-      <Menu.Dropdown>
+      <DropdownMenuContent align="start" side="bottom" {...rest}>
         {columnDef.renderColumnActionsMenuItems?.({
           column,
           internalColumnMenuItems,
@@ -280,7 +332,7 @@ export const MRT_ColumnActionMenu = <TData extends MRT_RowData>({
             table,
           }) ??
           internalColumnMenuItems}
-      </Menu.Dropdown>
-    </Menu>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

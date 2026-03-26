@@ -1,5 +1,9 @@
-import { ActionIcon, type ActionIconProps, Tooltip } from '@mantine/core';
+import clsx from 'clsx';
 
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import {
   type HTMLPropsRef,
   type MRT_RowData,
@@ -27,17 +31,24 @@ export const MRT_ToggleFiltersButton = <TData extends MRT_RowData>({
   const { showColumnFilters } = getState();
 
   return (
-    <Tooltip label={title ?? showHideFilters} withinPortal>
-      <ActionIcon
-        aria-label={title ?? showHideFilters}
-        color="gray"
-        onClick={() => setShowColumnFilters((current) => !current)}
-        size="lg"
-        variant="subtle"
-        {...rest}
-      >
-        {showColumnFilters ? <IconFilterOff /> : <IconFilter />}
-      </ActionIcon>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          {...rest}
+          aria-label={title ?? showHideFilters}
+          className={clsx('h-9 w-9 text-muted-foreground', rest?.className)}
+          onClick={() => setShowColumnFilters((current) => !current)}
+          size="icon"
+          variant="ghost"
+        >
+          {showColumnFilters ? (
+            <IconFilterOff className="size-4" />
+          ) : (
+            <IconFilter className="size-4" />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">{title ?? showHideFilters}</TooltipContent>
     </Tooltip>
   );
 };

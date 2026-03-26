@@ -1,4 +1,21 @@
-import pkg from './package.json' assert { type: 'json' };
+import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+
+const pkg = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+);
+
+const tailwindMergeStylesPlugin = () => ({
+  name: 'tailwind-merge-styles',
+  writeBundle() {
+    execSync(
+      'pnpm exec tailwindcss -c tailwind.config.cjs -i ./src/globals.css -o ./dist/tw.css',
+      { stdio: 'inherit' },
+    );
+    execSync('node merge-styles.mjs', { stdio: 'inherit' });
+  },
+});
+import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 import copy from 'rollup-plugin-copy';
 import del from 'rollup-plugin-delete';
@@ -9,9 +26,6 @@ import postcss from 'rollup-plugin-postcss';
 export default [
   {
     external: [
-      '@mantine/core',
-      '@mantine/dates',
-      '@mantine/hooks',
       '@tabler/icons-react',
       '@tanstack/match-sorter-utils',
       '@tanstack/react-table',
@@ -19,6 +33,7 @@ export default [
       'clsx',
       'dayjs',
       'react',
+      'react-dom',
     ],
     input: './src/index.ts',
     output: [
@@ -34,6 +49,7 @@ export default [
       },
     ],
     plugins: [
+      resolve({ browser: true }),
       external(),
       typescript({
         rootDir: './src',
@@ -43,6 +59,7 @@ export default [
         minimize: false,
         modules: true,
       }),
+      tailwindMergeStylesPlugin(),
     ],
   },
   {
@@ -54,11 +71,23 @@ export default [
     plugins: [
       copy({
         hook: 'buildStart',
-        targets: [{ dest: './', rename: 'styles.css', src: 'dist/index.css' }],
+        targets: [
+          {
+            dest: './',
+            rename: 'styles.css',
+            src: 'dist/styles-merged.css',
+          },
+        ],
       }),
       del({
         hook: 'buildEnd',
-        targets: ['dist/index.css', 'dist/index.esm.css', 'dist/types'],
+        targets: [
+          'dist/index.css',
+          'dist/index.esm.css',
+          'dist/tw.css',
+          'dist/styles-merged.css',
+          'dist/types',
+        ],
       }),
       dts(),
     ],

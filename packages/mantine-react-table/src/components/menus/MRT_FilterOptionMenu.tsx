@@ -2,7 +2,11 @@ import classes from './MRT_FilterOptionMenu.module.css';
 
 import { Fragment, useMemo } from 'react';
 
-import { Menu } from '@mantine/core';
+import { cn } from '../../lib/utils';
+import {
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '../ui/dropdown-menu';
 
 import {
   type MRT_FilterOption,
@@ -232,7 +236,7 @@ export const MRT_FilterOptionMenu = <TData extends MRT_RowData>({
     !!header && columnDef ? columnDef._filterFn : globalFilterFn;
 
   return (
-    <Menu.Dropdown>
+    <>
       {(header && column && columnDef
         ? (columnDef.renderColumnFilterModeMenuItems?.({
             column: column as any,
@@ -254,20 +258,21 @@ export const MRT_FilterOptionMenu = <TData extends MRT_RowData>({
         internalFilterOptions.map(
           ({ divider, label, option, symbol }, index) => (
             <Fragment key={index}>
-              <Menu.Item
-                color={option === filterOption ? 'blue' : undefined}
-                leftSection={<span className={classes.symbol}>{symbol}</span>}
-                onClick={() =>
+              <DropdownMenuItem
+                className={cn(option === filterOption && 'bg-accent')}
+                onSelect={() =>
                   handleSelectFilterMode(option as MRT_FilterOption)
                 }
-                value={option}
               >
-                {label}
-              </Menu.Item>
-              {divider && <Menu.Divider />}
+                <span className="flex items-center gap-2">
+                  <span className={classes.symbol}>{symbol}</span>
+                  {label}
+                </span>
+              </DropdownMenuItem>
+              {divider && <DropdownMenuSeparator />}
             </Fragment>
           ),
         )}
-    </Menu.Dropdown>
+    </>
   );
 };

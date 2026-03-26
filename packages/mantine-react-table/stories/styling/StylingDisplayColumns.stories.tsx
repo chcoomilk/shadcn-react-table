@@ -1,5 +1,4 @@
-import { Button } from '@mantine/core';
-
+import { Button } from '../../src/components/ui/button';
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
 
 import { faker } from '@faker-js/faker';
@@ -74,20 +73,18 @@ export const CustomizeDisplayColumns = () => (
     renderRowActions={({ row }) => (
       <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '8px' }}>
         <Button
-          color="lightblue"
           onClick={() => {
             console.info('View Profile', row);
           }}
-          variant="filled"
+          variant="secondary"
         >
           View
         </Button>
         <Button
-          color="error"
           onClick={() => {
             console.info('Remove', row);
           }}
-          variant="filled"
+          variant="destructive"
         >
           Remove
         </Button>

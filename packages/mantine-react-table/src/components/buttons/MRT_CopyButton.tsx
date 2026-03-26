@@ -2,15 +2,10 @@ import clsx from 'clsx';
 
 import classes from './MRT_CopyButton.module.css';
 
-import { type ReactNode } from 'react';
+import { type ReactNode, useCallback, useState } from 'react';
 
-import {
-  CopyButton,
-  Tooltip,
-  UnstyledButton,
-  type UnstyledButtonProps,
-} from '@mantine/core';
-
+import { cn } from '../../lib/utils';
+import { type UnstyledButtonProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Cell,
   type MRT_CellValue,
@@ -18,6 +13,7 @@ import {
   type MRT_TableInstance,
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 interface Props<TData extends MRT_RowData, TValue = MRT_CellValue>
   extends UnstyledButtonProps {
@@ -48,35 +44,46 @@ export const MRT_CopyButton = <TData extends MRT_RowData>({
     ...rest,
   };
 
+  const [copied, setCopied] = useState(false);
+
+  const copy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(String(cell.getValue<string>()));
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }, [cell]);
+
   return (
-    <CopyButton value={cell.getValue<string>()}>
-      {({ copied, copy }) => (
-        <Tooltip
-          color={copied ? 'green' : undefined}
-          label={
-            buttonProps?.title ?? (copied ? copiedToClipboard : clickToCopy)
-          }
-          openDelay={1000}
-          withinPortal
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          {...buttonProps}
+          className={cn(
+            'mrt-copy-button inline-flex cursor-pointer border-0 bg-transparent p-0 text-left',
+            classes.root,
+            buttonProps?.className,
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            void copy();
+          }}
+          role="presentation"
+          title={undefined}
         >
-          <UnstyledButton
-            {...buttonProps}
-            className={clsx(
-              'mrt-copy-button',
-              classes.root,
-              buttonProps?.className,
-            )}
-            onClick={(e) => {
-              e.stopPropagation();
-              copy();
-            }}
-            role="presentation"
-            title={undefined}
-          >
-            {children}
-          </UnstyledButton>
-        </Tooltip>
-      )}
-    </CopyButton>
+          {children}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent
+        className={clsx(copied && 'border-green-600 text-green-600')}
+        side="bottom"
+      >
+        {(buttonProps?.title as string | undefined) ??
+          (copied ? copiedToClipboard : clickToCopy)}
+      </TooltipContent>
+    </Tooltip>
   );
 };

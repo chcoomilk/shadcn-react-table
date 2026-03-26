@@ -1,8 +1,7 @@
 import { type MouseEvent } from 'react';
 
-import { ActionIcon, Tooltip } from '@mantine/core';
-
-import { MRT_EditActionButtons } from './MRT_EditActionButtons';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 import {
   type MRT_Cell,
@@ -13,6 +12,7 @@ import {
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
 import { MRT_RowActionMenu } from '../menus/MRT_RowActionMenu';
+import { MRT_EditActionButtons } from './MRT_EditActionButtons';
 
 interface Props<TData extends MRT_RowData, TValue = MRT_CellValue> {
   cell: MRT_Cell<TData, TValue>;
@@ -61,17 +61,20 @@ export const MRT_ToggleRowActionMenuButton = <TData extends MRT_RowData>({
         <MRT_EditActionButtons row={row} table={table} />
       ) : !renderRowActionMenuItems &&
         parseFromValuesOrFunc(enableEditing, row) ? (
-        <Tooltip label={edit} openDelay={1000} position="right" withinPortal>
-          <ActionIcon
-            aria-label={edit}
-            color="gray"
-            disabled={!!editingRow && editingRow.id !== row.id}
-            onClick={handleStartEditMode}
-            size="md"
-            variant="subtle"
-          >
-            <IconEdit />
-          </ActionIcon>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              aria-label={edit}
+              className="h-9 w-9 text-muted-foreground"
+              disabled={!!editingRow && editingRow.id !== row.id}
+              onClick={handleStartEditMode}
+              size="icon"
+              variant="ghost"
+            >
+              <IconEdit className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">{edit}</TooltipContent>
         </Tooltip>
       ) : renderRowActionMenuItems ? (
         <MRT_RowActionMenu

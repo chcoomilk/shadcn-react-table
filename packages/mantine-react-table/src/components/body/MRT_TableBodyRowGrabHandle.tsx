@@ -1,6 +1,6 @@
 import { type DragEvent, type RefObject } from 'react';
 
-import { type ActionIconProps } from '@mantine/core';
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 
 import {
   type MRT_Row,

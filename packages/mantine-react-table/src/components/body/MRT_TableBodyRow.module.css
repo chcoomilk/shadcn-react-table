@@ -70,13 +70,7 @@
         left: calc(var(--mrt-table-cell-left, 0) * 1px);
         &[data-last-left-pinned] {
           &::before {
-            box-shadow: -6px 0 6px -6px alpha(
-                light-dark(
-                  var(--mantine-color-gray-outline),
-                  var(--mantine-color-dark-outline)
-                ),
-                0.5
-              ) inset;
+            box-shadow: -6px 0 6px -6px color-mix(in srgb, var(--mrt-pinned-shadow-color) 50%, transparent) inset;
           }
         }
       }
@@ -85,13 +79,7 @@
         right: calc(var(--mrt-table-cell-right, 0) * 1px);
         &[data-first-right-pinned] {
           &::before {
-            box-shadow: 6px 0 6px -6px alpha(
-                light-dark(
-                  var(--mantine-color-gray-outline),
-                  var(--mantine-color-dark-outline)
-                ),
-                0.5
-              ) inset;
+            box-shadow: 6px 0 6px -6px color-mix(in srgb, var(--mrt-pinned-shadow-color) 50%, transparent) inset;
           }
         }
       }
@@ -100,7 +88,7 @@
   /* end column pinning styles */
   /* row pinning styles */
   &[data-row-pinned] {
-    background-color: var(--mrt-pinned-row-background-color, --mantine-color-body);
+    background-color: var(--mrt-pinned-row-background-color, var(--mantine-color-body));
     bottom: calc(var(--mrt-pinned-row-bottom) * 1px);
     opacity: 0.97;
     top: calc(var(--mrt-pinned-row-top) * 1px);
@@ -141,7 +129,7 @@
 
   /* selection styles */
   &[data-selected] {
-    background-color: var(--mrt-selected-row-background-color, --mantine-color-body);
+    background-color: var(--mrt-selected-row-background-color, var(--mantine-color-body));
 
     td {
       &[data-column-pinned] {

@@ -6,6 +6,7 @@ import {
   type Xor,
 } from '../types';
 import { MRT_TablePaper } from './table/MRT_TablePaper';
+import { TooltipProvider } from './ui/tooltip';
 
 type TableInstanceProp<TData extends MRT_RowData> = {
   table: MRT_TableInstance<TData>;
@@ -32,5 +33,9 @@ export const MantineReactTable = <TData extends MRT_RowData>(
     table = useMantineReactTable(props);
   }
 
-  return <MRT_TablePaper table={table} />;
+  return (
+    <TooltipProvider delayDuration={400} skipDelayDuration={0}>
+      <MRT_TablePaper table={table} />
+    </TooltipProvider>
+  );
 };

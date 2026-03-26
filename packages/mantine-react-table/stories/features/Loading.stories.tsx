@@ -113,6 +113,24 @@ export const ReloadingExample = () => (
   />
 );
 
+export const ReloadingSkeletonExample = () => (
+  <MantineReactTable
+    columns={columns}
+    data={data}
+    mantineLoadingOverlayProps={{ spinner: false }}
+    state={{ isLoading: true, showSkeletons: true }}
+  />
+);
+
+export const ReloadingOverlayExample = () => (
+  <MantineReactTable
+    columns={columns}
+    data={data}
+    mantineLoadingOverlayProps={{ spinner: false }}
+    state={{ isLoading: true, showSkeletons: false }}
+  />
+);
+
 export const OnlyTopProgressBar = () => (
   <MantineReactTable
     columns={columns}

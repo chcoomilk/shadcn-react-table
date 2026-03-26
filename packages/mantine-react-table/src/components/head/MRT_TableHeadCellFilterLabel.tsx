@@ -4,23 +4,22 @@ import classes from './MRT_TableHeadCellFilterLabel.module.css';
 
 import { type MouseEvent, useState } from 'react';
 
-import {
-  ActionIcon,
-  type ActionIconProps,
-  Popover,
-  Tooltip,
-  Transition,
-} from '@mantine/core';
-
-import { MRT_TableHeadCellFilterContainer } from './MRT_TableHeadCellFilterContainer';
-
 import { localizedFilterOption } from '../../fns/filterFns';
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Header,
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
 import { dataVariable } from '../../utils/style.utils';
+import { Button } from '../ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { MRT_TableHeadCellFilterContainer } from './MRT_TableHeadCellFilterContainer';
 
 interface Props<TData extends MRT_RowData> extends ActionIconProps {
   header: MRT_Header<TData>;
@@ -46,7 +45,7 @@ export const MRT_TableHeadCellFilterLabel = <TData extends MRT_RowData>({
 
   const filterValue = column.getFilterValue();
 
-  const [popoverOpened, setPopoverOpened] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const isFilterActive =
     (Array.isArray(filterValue) && filterValue.some(Boolean)) ||
@@ -93,78 +92,92 @@ export const MRT_TableHeadCellFilterLabel = <TData extends MRT_RowData>({
           )
           .replace('" "', '');
 
-  return (
-    <>
+  const showFilterIcon =
+    columnFilterDisplayMode === 'popover' ||
+    (!!column.getFilterValue() && !isRangeFilter) ||
+    (isRangeFilter &&
+      (!!(column.getFilterValue() as [unknown, unknown])?.[0] ||
+        !!(column.getFilterValue() as [unknown, unknown])?.[1]));
+
+  if (!showFilterIcon) {
+    return null;
+  }
+
+  const triggerButton = (
+    <Button
+      aria-label={filterTooltip}
+      {...dataVariable('active', isFilterActive)}
+      onClick={(event: MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation();
+        if (columnFilterDisplayMode === 'popover') {
+          setPopoverOpen((o) => !o);
+        } else {
+          setShowColumnFilters(true);
+        }
+        setTimeout(() => {
+          const input = filterInputRefs.current[`${column.id}-0`];
+          input?.focus();
+          input?.select();
+        }, 100);
+      }}
+      size="icon"
+      variant="ghost"
+      {...rest}
+      className={clsx(
+        'mrt-table-head-cell-filter-label-icon h-[18px] w-[18px] min-w-[18px] text-muted-foreground',
+        classes.root,
+        rest?.className,
+      )}
+    >
+      <IconFilter className="size-[18px]" />
+    </Button>
+  );
+
+  if (columnFilterDisplayMode === 'popover') {
+    return (
       <Popover
-        keepMounted={columnDef.filterVariant === 'range-slider'}
-        onChange={setPopoverOpened}
-        onClose={() => setPopoverOpened(false)}
-        opened={popoverOpened}
-        position="top"
-        shadow="xl"
-        width={360}
-        withinPortal
+        modal={columnDef.filterVariant !== 'range-slider'}
+        onOpenChange={setPopoverOpen}
+        open={popoverOpen}
       >
-        <Transition
-          mounted={
-            columnFilterDisplayMode === 'popover' ||
-            (!!column.getFilterValue() && !isRangeFilter) ||
-            (isRangeFilter &&
-              (!!(column.getFilterValue() as [any, any])?.[0] ||
-                !!(column.getFilterValue() as [any, any])?.[1]))
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
+          </TooltipTrigger>
+          {!popoverOpen ? (
+            <TooltipContent
+              className={filterTooltip.length > 40 ? 'max-w-[300px]' : undefined}
+              side="top"
+            >
+              {filterTooltip}
+            </TooltipContent>
+          ) : null}
+        </Tooltip>
+        <PopoverContent
+          align="center"
+          className="w-[360px] p-3 shadow-xl"
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) =>
+            event.key === 'Enter' && setPopoverOpen(false)
           }
-          transition="scale"
+          onMouseDown={(event) => event.stopPropagation()}
+          side="top"
         >
-          {() => (
-            <Popover.Target>
-              <Tooltip
-                disabled={popoverOpened}
-                label={filterTooltip}
-                multiline
-                w={filterTooltip.length > 40 ? 300 : undefined}
-                withinPortal
-              >
-                <ActionIcon
-                  aria-label={filterTooltip}
-                  className={clsx(
-                    'mrt-table-head-cell-filter-label-icon',
-                    classes.root,
-                  )}
-                  size={18}
-                  {...dataVariable('active', isFilterActive)}
-                  onClick={(event: MouseEvent<HTMLButtonElement>) => {
-                    event.stopPropagation();
-                    if (columnFilterDisplayMode === 'popover') {
-                      setPopoverOpened((opened) => !opened);
-                    } else {
-                      setShowColumnFilters(true);
-                    }
-                    setTimeout(() => {
-                      const input = filterInputRefs.current[`${column.id}-0`];
-                      input?.focus();
-                      input?.select();
-                    }, 100);
-                  }}
-                  {...rest}
-                >
-                  <IconFilter size="100%" />
-                </ActionIcon>
-              </Tooltip>
-            </Popover.Target>
-          )}
-        </Transition>
-        {columnFilterDisplayMode === 'popover' && (
-          <Popover.Dropdown
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) =>
-              event.key === 'Enter' && setPopoverOpened(false)
-            }
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <MRT_TableHeadCellFilterContainer header={header} table={table} />
-          </Popover.Dropdown>
-        )}
+          <MRT_TableHeadCellFilterContainer header={header} table={table} />
+        </PopoverContent>
       </Popover>
-    </>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{triggerButton}</TooltipTrigger>
+      <TooltipContent
+        className={filterTooltip.length > 40 ? 'max-w-[300px]' : undefined}
+        side="top"
+      >
+        {filterTooltip}
+      </TooltipContent>
+    </Tooltip>
   );
 };

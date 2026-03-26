@@ -12,7 +12,7 @@ import {
   getSortedRowModel,
 } from '@tanstack/react-table';
 
-import { useDirection } from '@mantine/core';
+import { useDirection } from '../lib/hooks';
 
 import { MRT_AggregationFns } from '../fns/aggregationFns';
 import { MRT_FilterFns } from '../fns/filterFns';

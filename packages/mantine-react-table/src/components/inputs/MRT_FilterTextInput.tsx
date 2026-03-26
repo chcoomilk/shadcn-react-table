@@ -2,21 +2,16 @@ import clsx from 'clsx';
 
 import classes from './MRT_FilterTextInput.module.css';
 
-import { type MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
-
 import {
-  ActionIcon,
-  Autocomplete,
-  Badge,
-  Box,
-  MultiSelect,
-  Select,
-  TextInput,
-  type TextInputProps,
-} from '@mantine/core';
-import { DateInput } from '@mantine/dates';
-import { useDebouncedValue } from '@mantine/hooks';
+  type MouseEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
+import { useDebouncedValue } from '../../lib/hooks';
+import { type TextInputProps } from '../../types/mrt-ui-props';
 import { localizedFilterOption } from '../../fns/filterFns';
 import {
   type MRT_Header,
@@ -24,11 +19,50 @@ import {
   type MRT_TableInstance,
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { MRT_Box } from '../mrt/MRT_Box';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Calendar } from '../ui/calendar';
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '../ui/command';
+import { Checkbox } from '../ui/checkbox';
+import { Input } from '../ui/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 
 interface Props<TData extends MRT_RowData> extends TextInputProps {
   header: MRT_Header<TData>;
   rangeFilterIndex?: number;
   table: MRT_TableInstance<TData>;
+}
+
+function normalizeOptions(raw: unknown[]): { label: string; value: string }[] {
+  return raw.map((o) => {
+    if (o !== null && typeof o === 'object' && 'value' in o) {
+      const x = o as { label?: string; value: unknown };
+      return {
+        label: String(x.label ?? x.value),
+        value: String(x.value),
+      };
+    }
+    const s = String(o);
+    return { label: s, value: s };
+  });
 }
 
 export const MRT_FilterTextInput = <TData extends MRT_RowData>({
@@ -119,27 +153,30 @@ export const MRT_FilterTextInput = <TData extends MRT_RowData>({
   const filterSelectOptions = useMemo(
     () =>
       (
-        autoCompleteProps?.data ??
-        selectProps?.data ??
-        multiSelectProps?.data ??
+        (autoCompleteProps as { data?: unknown[] })?.data ??
+        (selectProps as { data?: unknown[] })?.data ??
+        (multiSelectProps as { data?: unknown[] })?.data ??
         ((isAutoCompleteFilter || isSelectFilter || isMultiSelectFilter) &&
         facetedUniqueValues
           ? Array.from(facetedUniqueValues.keys())
               .filter((key) => key !== null)
-              .sort((a, b) => a.localeCompare(b))
+              .sort((a, b) => String(a).localeCompare(String(b)))
           : [])
-      )
-        //@ts-ignore
-        .filter((o: any) => o !== undefined && o !== null),
+      ).filter((o: unknown) => o !== undefined && o !== null),
     [
-      autoCompleteProps?.data,
+      (autoCompleteProps as { data?: unknown[] })?.data,
       facetedUniqueValues,
       isAutoCompleteFilter,
       isMultiSelectFilter,
       isSelectFilter,
-      multiSelectProps?.data,
-      selectProps?.data,
+      (multiSelectProps as { data?: unknown[] })?.data,
+      (selectProps as { data?: unknown[] })?.data,
     ],
+  );
+
+  const normalizedOptions = useMemo(
+    () => normalizeOptions(filterSelectOptions as unknown[]),
+    [filterSelectOptions],
   );
 
   const isMounted = useRef(false);
@@ -159,7 +196,8 @@ export const MRT_FilterTextInput = <TData extends MRT_RowData>({
     manualFiltering ? 400 : 200,
   );
 
-  //send debounced filterValue to table instance
+  const [autoCompleteOpen, setAutoCompleteOpen] = useState(false);
+
   useEffect(() => {
     if (!isMounted.current) return;
     if (isRangeFilter) {
@@ -174,7 +212,6 @@ export const MRT_FilterTextInput = <TData extends MRT_RowData>({
     }
   }, [debouncedFilterValue]);
 
-  //receive table filter value and set it to local state
   useEffect(() => {
     if (!isMounted.current) {
       isMounted.current = true;
@@ -203,8 +240,6 @@ export const MRT_FilterTextInput = <TData extends MRT_RowData>({
         newFilterValues[rangeFilterIndex as number] = undefined;
         return newFilterValues;
       });
-      // This is from Mantine v6 but it also applies for v7
-      // https://github.com/mantinedev/mantine/issues/4716#issuecomment-1702699688
     } else if (isSelectFilter) {
       setFilterValue(null);
       column.setFilterValue(null);
@@ -240,16 +275,15 @@ export const MRT_FilterTextInput = <TData extends MRT_RowData>({
           : !filterChipLabel && classes['not-filter-chip'],
     ),
     disabled: !!filterChipLabel,
-    onChange: setFilterValue,
     onClick: (event: MouseEvent<HTMLInputElement>) => event.stopPropagation(),
     placeholder: filterPlaceholder,
     style: {
       ...(isMultiSelectFilter
-        ? multiSelectProps?.style
+        ? (multiSelectProps as { style?: object })?.style
         : isSelectFilter
-          ? selectProps?.style
+          ? (selectProps as { style?: object })?.style
           : isDateFilter
-            ? dateInputProps?.style
+            ? (dateInputProps as { style?: object })?.style
             : textInputProps?.style),
     },
     title: filterPlaceholder,
@@ -259,16 +293,16 @@ export const MRT_FilterTextInput = <TData extends MRT_RowData>({
   } as const;
 
   const ClearButton = filterValue ? (
-    <ActionIcon
+    <Button
       aria-label={localization.clearFilter}
-      color="var(--mantine-color-gray-7)"
+      className="h-8 w-8 shrink-0 text-muted-foreground"
       onClick={handleClear}
-      size="sm"
+      size="icon"
       title={localization.clearFilter ?? ''}
-      variant="transparent"
+      variant="ghost"
     >
-      <IconX />
-    </ActionIcon>
+      <IconX className="size-4" />
+    </Button>
   ) : null;
 
   if (columnDef.Filter) {
@@ -279,138 +313,294 @@ export const MRT_FilterTextInput = <TData extends MRT_RowData>({
 
   if (filterChipLabel) {
     return (
-      <Box style={commonProps.style}>
+      <MRT_Box style={commonProps.style}>
         <Badge
-          className={classes['filter-chip-badge']}
-          onClick={handleClearEmptyFilterChip}
-          rightSection={ClearButton}
-          size="lg"
+          className={clsx(
+            'flex items-center gap-1 pr-1 text-base',
+            classes['filter-chip-badge'],
+          )}
         >
-          {filterChipLabel}
+          <span
+            className="cursor-pointer"
+            onClick={handleClearEmptyFilterChip}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && handleClearEmptyFilterChip()
+            }
+            role="button"
+            tabIndex={0}
+          >
+            {filterChipLabel}
+          </span>
+          {ClearButton}
         </Badge>
-      </Box>
+      </MRT_Box>
     );
   }
 
   if (isMultiSelectFilter) {
+    const selected = (Array.isArray(filterValue) ? filterValue : []) as string[];
+    const toggle = (v: string) => {
+      setFilterValue((prev: string[]) => {
+        const p = Array.isArray(prev) ? prev : [];
+        return p.includes(v) ? p.filter((x) => x !== v) : [...p, v];
+      });
+    };
     return (
-      <MultiSelect
-        {...commonProps}
-        searchable
-        {...multiSelectProps}
-        className={clsx(className, multiSelectProps.className)}
-        data={filterSelectOptions}
-        onChange={(value) => setFilterValue(value)}
-        ref={(node) => {
-          if (node) {
-            filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
-              node;
-            if (multiSelectProps.ref) {
-              multiSelectProps.ref.current = node;
-            }
-          }
-        }}
-        rightSection={
-          filterValue?.toString()?.length && multiSelectProps?.clearable
-            ? ClearButton
-            : undefined
-        }
+      <div
+        className={clsx(className, (multiSelectProps as { className?: string }).className, 'flex w-full min-w-[8rem] items-center gap-1')}
         style={commonProps.style}
-      />
+      >
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              className="h-10 flex-1 justify-start font-normal"
+              disabled={commonProps.disabled}
+              onClick={(e) => e.stopPropagation()}
+              variant="outline"
+            >
+              {selected.length
+                ? `${selected.length} selected`
+                : filterPlaceholder}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-64 p-2">
+            <div className="max-h-60 space-y-2 overflow-y-auto">
+              {normalizedOptions.map((opt) => (
+                <label
+                  className="flex cursor-pointer items-center gap-2 text-sm"
+                  key={opt.value}
+                >
+                  <Checkbox
+                    checked={selected.includes(opt.value)}
+                    onCheckedChange={() => toggle(opt.value)}
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+        {selected.length > 0 && (multiSelectProps as { clearable?: boolean }).clearable !== false
+          ? ClearButton
+          : null}
+        <input
+          aria-hidden
+          className="sr-only"
+          readOnly
+          ref={(node) => {
+            if (node) {
+              filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
+                node;
+            }
+          }}
+          tabIndex={-1}
+        />
+      </div>
     );
   }
 
   if (isSelectFilter) {
+    const v =
+      filterValue === null || filterValue === undefined
+        ? ''
+        : String(filterValue);
     return (
-      <Select
-        {...commonProps}
-        clearable
-        searchable
-        {...selectProps}
-        className={clsx(className, selectProps.className)}
-        clearButtonProps={{
-          size: 'md',
-        }}
-        data={filterSelectOptions}
-        ref={(node) => {
-          if (node) {
-            filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
-              node;
-            if (selectProps.ref) {
-              selectProps.ref.current = node;
-            }
-          }
-        }}
+      <div
+        className={clsx(
+          className,
+          (selectProps as { className?: string }).className,
+          'flex w-full min-w-[8rem] items-center gap-1',
+        )}
         style={commonProps.style}
-      />
+      >
+        <Select
+          onValueChange={(val) => setFilterValue(val || null)}
+          value={v || undefined}
+        >
+          <SelectTrigger
+            className="h-10 flex-1"
+            disabled={commonProps.disabled}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <SelectValue placeholder={filterPlaceholder} />
+          </SelectTrigger>
+          <SelectContent>
+            {normalizedOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {v ? ClearButton : null}
+        <input
+          aria-hidden
+          className="sr-only"
+          readOnly
+          ref={(node) => {
+            if (node) {
+              filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
+                node;
+            }
+          }}
+          tabIndex={-1}
+        />
+      </div>
     );
   }
 
   if (isDateFilter) {
+    // NOTE: Date filter UX may differ from Mantine DateInput (popover behavior, keyboard).
+    const dateVal = filterValue ? new Date(String(filterValue)) : undefined;
+    const valid =
+      dateVal && !Number.isNaN(dateVal.getTime()) ? dateVal : undefined;
     return (
-      <DateInput
-        {...commonProps}
-        allowDeselect
-        clearable
-        popoverProps={{ withinPortal: columnFilterDisplayMode !== 'popover' }}
-        {...dateInputProps}
-        className={clsx(className, dateInputProps.className)}
-        onChange={(event) => commonProps.onChange(event === null ? '' : event)}
-        ref={(node) => {
-          if (node) {
-            filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
-              node;
-            if (dateInputProps.ref) {
-              dateInputProps.ref.current = node;
-            }
-          }
-        }}
+      <div
+        className={clsx(
+          className,
+          (dateInputProps as { className?: string }).className,
+          'flex w-full items-center gap-1',
+        )}
         style={commonProps.style}
-      />
+      >
+        <Popover
+          modal={columnFilterDisplayMode === 'popover'}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              className="h-10 flex-1 justify-start font-normal"
+              disabled={commonProps.disabled}
+              onClick={(e) => e.stopPropagation()}
+              variant="outline"
+            >
+              {valid
+                ? valid.toLocaleDateString()
+                : (filterPlaceholder ?? 'Pick date')}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-auto p-0">
+            <Calendar
+              mode="single"
+              onSelect={(d) => {
+                setFilterValue(d ? d.toISOString().slice(0, 10) : '');
+              }}
+              selected={valid}
+            />
+          </PopoverContent>
+        </Popover>
+        {filterValue ? ClearButton : null}
+        <input
+          aria-hidden
+          className="sr-only"
+          readOnly
+          ref={(node) => {
+            if (node) {
+              filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
+                node;
+            }
+          }}
+          tabIndex={-1}
+        />
+      </div>
     );
   }
 
   if (isAutoCompleteFilter) {
     return (
-      <Autocomplete
-        {...commonProps}
-        onChange={(value) => setFilterValue(value)}
-        rightSection={filterValue?.toString()?.length ? ClearButton : undefined}
-        {...autoCompleteProps}
-        className={clsx(className, autoCompleteProps.className)}
-        data={filterSelectOptions}
-        ref={(node) => {
-          if (node) {
-            filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
-              node;
-            if (autoCompleteProps.ref) {
-              autoCompleteProps.ref.current = node;
-            }
-          }
-        }}
+      <div
+        className={clsx(
+          className,
+          (autoCompleteProps as { className?: string }).className,
+          'flex w-full items-center gap-1',
+        )}
         style={commonProps.style}
-      />
+      >
+        <Popover
+          onOpenChange={setAutoCompleteOpen}
+          open={autoCompleteOpen}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              className="h-10 flex-1 justify-start font-normal"
+              disabled={commonProps.disabled}
+              onClick={(e) => e.stopPropagation()}
+              variant="outline"
+            >
+              {filterValue ? String(filterValue) : filterPlaceholder}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-[var(--radix-popover-trigger-width)] p-0">
+            <Command>
+              <CommandInput placeholder={String(filterPlaceholder)} />
+              <CommandList>
+                <CommandEmpty>No matches</CommandEmpty>
+                {normalizedOptions.map((opt) => (
+                  <CommandItem
+                    key={opt.value}
+                    onSelect={() => {
+                      setFilterValue(opt.value);
+                      setAutoCompleteOpen(false);
+                    }}
+                    value={opt.value}
+                  >
+                    {opt.label}
+                  </CommandItem>
+                ))}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+        {filterValue?.toString()?.length ? ClearButton : null}
+        <input
+          aria-hidden
+          className="sr-only"
+          readOnly
+          ref={(node) => {
+            if (node) {
+              filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
+                node;
+            }
+          }}
+          tabIndex={-1}
+        />
+      </div>
     );
   }
 
   return (
-    <TextInput
-      {...commonProps}
-      onChange={(e) => setFilterValue(e.target.value)}
-      rightSection={filterValue?.toString()?.length ? ClearButton : undefined}
-      {...textInputProps}
-      className={clsx(className, textInputProps.className)}
-      mt={0}
-      ref={(node) => {
-        if (node) {
-          filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
-            node;
-          if (textInputProps.ref) {
-            textInputProps.ref.current = node;
-          }
-        }
-      }}
+    <div
+      className={clsx(
+        className,
+        textInputProps.className,
+        'flex w-full items-center gap-1 rounded-md border border-input bg-background px-2',
+      )}
       style={commonProps.style}
-    />
+    >
+      <Input
+        {...textInputProps}
+        aria-label={filterPlaceholder}
+        className="h-10 flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0"
+        disabled={commonProps.disabled}
+        onChange={(e) => {
+          setFilterValue(e.target.value);
+          (textInputProps.onChange as ((e: React.ChangeEvent<HTMLInputElement>) => void) | undefined)?.(e);
+        }}
+        onClick={(e) => e.stopPropagation()}
+        placeholder={filterPlaceholder}
+        ref={(node) => {
+          if (node) {
+            filterInputRefs.current[`${column.id}-${rangeFilterIndex ?? 0}`] =
+              node;
+            const r = textInputProps.ref;
+            if (r && typeof r === 'object' && 'current' in r) {
+              (r as { current: HTMLInputElement | null }).current = node;
+            }
+          }
+        }}
+        title={filterPlaceholder}
+        value={filterValue ?? ''}
+      />
+      {filterValue?.toString()?.length ? ClearButton : null}
+    </div>
   );
 };

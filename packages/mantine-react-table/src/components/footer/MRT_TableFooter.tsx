@@ -2,16 +2,15 @@ import clsx from 'clsx';
 
 import classes from './MRT_TableFooter.module.css';
 
-import { TableTfoot, type TableTfootProps } from '@mantine/core';
-
-import { MRT_TableFooterRow } from './MRT_TableFooterRow';
-
+import { type TableTfootProps } from '../../types/mrt-ui-props';
 import {
   type MRT_ColumnVirtualizer,
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { TableTfoot } from '../ui/table';
+import { MRT_TableFooterRow } from './MRT_TableFooterRow';
 
 interface Props<TData extends MRT_RowData> extends TableTfootProps {
   columnVirtualizer?: MRT_ColumnVirtualizer;
@@ -50,7 +49,7 @@ export const MRT_TableFooter = <TData extends MRT_RowData>({
         stickFooter && classes.sticky,
         layoutMode?.startsWith('grid') && classes.grid,
       )}
-      ref={(ref: HTMLTableSectionElement) => {
+      ref={(ref: HTMLTableSectionElement | null) => {
         tableFooterRef.current = ref;
         if (tableFooterProps?.ref) {
           // @ts-ignore

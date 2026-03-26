@@ -2,13 +2,17 @@ import clsx from 'clsx';
 
 import classes from './MRT_EditActionButtons.module.css';
 
-import { ActionIcon, Box, type BoxProps, Button, Tooltip } from '@mantine/core';
+import { IconLoader2 } from '@tabler/icons-react';
 
+import { type BoxProps } from '../../types/mrt-ui-props';
 import {
   type MRT_Row,
   type MRT_RowData,
   type MRT_TableInstance,
 } from '../../types';
+import { MRT_Box } from '../mrt/MRT_Box';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 interface Props<TData extends MRT_RowData> extends BoxProps {
   row: MRT_Row<TData>;
@@ -83,45 +87,57 @@ export const MRT_EditActionButtons = <TData extends MRT_RowData>({
   };
 
   return (
-    <Box
-      className={clsx('mrt-edit-action-buttons', classes.root)}
-      onClick={(e) => e.stopPropagation()}
+    <MRT_Box
       {...rest}
+      className={clsx('mrt-edit-action-buttons', classes.root, rest?.className)}
+      onClick={(e) => e.stopPropagation()}
     >
       {variant === 'icon' ? (
         <>
-          <Tooltip label={localization.cancel} withinPortal>
-            <ActionIcon
-              aria-label={localization.cancel}
-              color="red"
-              onClick={handleCancel}
-              variant="subtle"
-            >
-              <IconCircleX />
-            </ActionIcon>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label={localization.cancel}
+                className="h-9 w-9 text-destructive"
+                onClick={handleCancel}
+                size="icon"
+                variant="ghost"
+              >
+                <IconCircleX className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{localization.cancel}</TooltipContent>
           </Tooltip>
-          <Tooltip label={localization.save} withinPortal>
-            <ActionIcon
-              aria-label={localization.save}
-              color="blue"
-              loading={isSaving}
-              onClick={handleSubmitRow}
-              variant="subtle"
-            >
-              <IconDeviceFloppy />
-            </ActionIcon>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label={localization.save}
+                className="h-9 w-9"
+                disabled={isSaving}
+                onClick={handleSubmitRow}
+                size="icon"
+                variant="ghost"
+              >
+                {isSaving ? (
+                  <IconLoader2 className="size-4 animate-spin" />
+                ) : (
+                  <IconDeviceFloppy className="size-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{localization.save}</TooltipContent>
           </Tooltip>
         </>
       ) : (
         <>
-          <Button onClick={handleCancel} variant="subtle">
+          <Button onClick={handleCancel} variant="ghost">
             {localization.cancel}
           </Button>
-          <Button loading={isSaving} onClick={handleSubmitRow} variant="filled">
+          <Button disabled={isSaving} onClick={handleSubmitRow}>
             {localization.save}
           </Button>
         </>
       )}
-    </Box>
+    </MRT_Box>
   );
 };

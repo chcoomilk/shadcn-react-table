@@ -1,8 +1,4 @@
-import { Box } from '@mantine/core';
-
 import { MantineReactTable, type MRT_ColumnDef } from '../../src';
-
-import { getPrimaryColor } from '../../src/utils/style.utils';
 
 import { faker } from '@faker-js/faker';
 import { type Meta } from '@storybook/react';
@@ -67,9 +63,7 @@ export const StyleTableHeadCellsIndividually = () => (
         accessorKey: 'lastName',
         header: 'Last Name',
         mantineTableHeadCellProps: {
-          style: (theme) => ({
-            color: getPrimaryColor(theme),
-          }),
+          style: { color: 'hsl(var(--primary))' },
         },
       },
       {
@@ -106,7 +100,9 @@ export const CustomHeadCellRenders = () => (
       {
         accessorKey: 'age',
         Header: ({ column }) => (
-          <Box color="primary.main">{column.columnDef.header}</Box>
+          <span className="font-medium text-primary">
+            {column.columnDef.header}
+          </span>
         ),
         header: 'Current Age',
       },

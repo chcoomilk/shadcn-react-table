@@ -4,18 +4,18 @@ import classes from './MRT_GlobalFilterTextInput.module.css';
 
 import { useEffect, useRef, useState } from 'react';
 
-import {
-  ActionIcon,
-  Collapse,
-  Menu,
-  TextInput,
-  type TextInputProps,
-  Tooltip,
-} from '@mantine/core';
-import { useDebouncedValue } from '@mantine/hooks';
-
+import { useDebouncedValue } from '../../lib/hooks';
+import { type TextInputProps } from '../../types/mrt-ui-props';
 import { type MRT_RowData, type MRT_TableInstance } from '../../types';
 import { parseFromValuesOrFunc } from '../../utils/utils';
+import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Input } from '../ui/input';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { MRT_FilterOptionMenu } from '../menus/MRT_FilterOptionMenu';
 
 interface Props<TData extends MRT_RowData> extends TextInputProps {
@@ -76,65 +76,79 @@ export const MRT_GlobalFilterTextInput = <TData extends MRT_RowData>({
     isMounted.current = true;
   }, [globalFilter]);
 
+  if (!showGlobalFilter) {
+    return null;
+  }
+
   return (
-    <Collapse className={classes.collapse} in={showGlobalFilter}>
+    <div className={clsx('flex items-center gap-1', classes.collapse)}>
       {enableGlobalFilterModes && (
-        <Menu withinPortal>
-          <Menu.Target>
-            <ActionIcon
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
               aria-label={localization.changeSearchMode}
-              color="gray"
-              size="sm"
-              variant="transparent"
+              className="h-8 w-8 text-muted-foreground"
+              size="icon"
+              variant="ghost"
             >
-              <IconSearch />
-            </ActionIcon>
-          </Menu.Target>
-          <MRT_FilterOptionMenu onSelect={handleClear} table={table} />
-        </Menu>
+              <IconSearch className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <MRT_FilterOptionMenu onSelect={handleClear} table={table} />
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
-      <TextInput
-        leftSection={!enableGlobalFilterModes && <IconSearch />}
-        mt={0}
-        mx={positionGlobalFilter !== 'left' ? 'mx' : undefined}
-        onChange={(event) => setSearchValue(event.target.value)}
-        placeholder={localization.search}
-        rightSection={
-          <ActionIcon
-            aria-label={localization.clearSearch}
-            color="gray"
-            disabled={!searchValue?.length}
-            hidden={!searchValue}
-            onClick={handleClear}
-            size="sm"
-            style={{
-              visibility: !searchValue ? 'hidden' : undefined,
-            }}
-            variant="transparent"
-          >
-            <Tooltip label={localization.clearSearch} withinPortal>
-              <IconX />
-            </Tooltip>
-          </ActionIcon>
-        }
-        value={searchValue ?? ''}
-        variant="filled"
-        {...textFieldProps}
+      <div
         className={clsx(
-          'mrt-global-filter-text-input',
+          'mrt-global-filter-text-input flex flex-1 items-center gap-1 rounded-md border border-input bg-background px-2',
           classes.root,
+          positionGlobalFilter !== 'left' ? 'mx-2' : undefined,
           textFieldProps?.className,
         )}
-        ref={(node) => {
-          if (node) {
-            searchInputRef.current = node;
-            if (textFieldProps?.ref) {
-              // @ts-ignore
-              textFieldProps.ref = node;
+      >
+        {!enableGlobalFilterModes && (
+          <IconSearch className="size-4 shrink-0 text-muted-foreground" />
+        )}
+        <Input
+          {...textFieldProps}
+          className="h-10 flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0"
+          onChange={(event) => {
+            setSearchValue(event.target.value);
+            (textFieldProps.onChange as ((e: React.ChangeEvent<HTMLInputElement>) => void) | undefined)?.(event);
+          }}
+          placeholder={localization.search}
+          ref={(node) => {
+            if (node) {
+              searchInputRef.current = node;
+              const r = textFieldProps?.ref;
+              if (r && typeof r === 'object' && 'current' in r) {
+                (r as { current: HTMLInputElement | null }).current = node;
+              }
             }
-          }
-        }}
-      />
-    </Collapse>
+          }}
+          value={searchValue ?? ''}
+        />
+        {searchValue ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label={localization.clearSearch}
+                className="h-8 w-8 shrink-0 text-muted-foreground"
+                disabled={!searchValue?.length}
+                onClick={handleClear}
+                size="icon"
+                variant="ghost"
+              >
+                <IconX className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              {localization.clearSearch}
+            </TooltipContent>
+          </Tooltip>
+        ) : null}
+      </div>
+    </div>
   );
 };

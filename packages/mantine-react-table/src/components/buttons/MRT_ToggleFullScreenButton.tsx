@@ -1,7 +1,10 @@
+import clsx from 'clsx';
 import { useState } from 'react';
 
-import { ActionIcon, type ActionIconProps, Tooltip } from '@mantine/core';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
+import { type ActionIconProps } from '../../types/mrt-ui-props';
 import {
   type HTMLPropsRef,
   type MRT_RowData,
@@ -27,31 +30,36 @@ export const MRT_ToggleFullScreenButton = <TData extends MRT_RowData>({
   ...rest
 }: Props<TData>) => {
   const { isFullScreen } = getState();
-  const [tooltipOpened, setTooltipOpened] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const handleToggleFullScreen = () => {
-    setTooltipOpened(false);
+    setTooltipOpen(false);
     setIsFullScreen((current) => !current);
   };
 
   return (
-    <Tooltip
-      label={title ?? toggleFullScreen}
-      opened={tooltipOpened}
-      withinPortal
-    >
-      <ActionIcon
-        aria-label={title ?? toggleFullScreen}
-        color="gray"
-        onClick={handleToggleFullScreen}
-        onMouseEnter={() => setTooltipOpened(true)}
-        onMouseLeave={() => setTooltipOpened(false)}
-        size="lg"
-        variant="subtle"
-        {...rest}
-      >
-        {isFullScreen ? <IconMinimize /> : <IconMaximize />}
-      </ActionIcon>
+    <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+      <TooltipTrigger asChild>
+        <Button
+          {...rest}
+          aria-label={title ?? toggleFullScreen}
+          className={clsx('h-9 w-9 text-muted-foreground', rest?.className)}
+          onClick={handleToggleFullScreen}
+          onMouseEnter={() => setTooltipOpen(true)}
+          onMouseLeave={() => setTooltipOpen(false)}
+          size="icon"
+          variant="ghost"
+        >
+          {isFullScreen ? (
+            <IconMinimize className="size-4" />
+          ) : (
+            <IconMaximize className="size-4" />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        {title ?? toggleFullScreen}
+      </TooltipContent>
     </Tooltip>
   );
 };
