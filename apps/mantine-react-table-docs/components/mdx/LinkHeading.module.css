@@ -1,0 +1,30 @@
+.anchor {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.title {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 2rem auto;
+  font-size: 22px;
+}
+
+.actionIcon {
+  opacity: 0.2;
+  transition: all 150ms ease;
+  color: '#e9ecef';
+  background-color: transparent;
+
+  &:hover {
+    opacity: 1;
+  }
+  @mixin light {
+    color: rgb(73, 80, 87);
+  }
+}

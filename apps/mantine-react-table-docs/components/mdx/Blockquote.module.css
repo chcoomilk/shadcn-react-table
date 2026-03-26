@@ -1,0 +1,10 @@
+.blockquote {
+  border-left: solid 8px var(--mantine-primary-color-filled);
+  padding: 8px 16px;
+  background-color: var(--mantine-primary-color-light);
+  border-radius: 4px;
+  margin: 3rem;
+  @media (max-width: 720px) {
+    margin: 16px;
+  }
+}

@@ -1,0 +1,27 @@
+.root {
+  font-weight: normal;
+  border-bottom: 2px solid
+    var(--mrt-border-color);
+  min-width: auto;
+  &.date-filter {
+    min-width: 7.8125rem;
+  }
+  &.range-filter {
+    min-width: 5rem;
+  }
+  &.not-filter-chip {
+    min-width: 6.25rem;
+  }
+  width: 100%;
+  & input {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  & input {
+    height: 2.1rem;
+  }
+}
+
+.filter-chip-badge {
+  margin: 5px;
+}

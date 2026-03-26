@@ -1,0 +1,35 @@
+import Head from 'next/head';
+import TableOptionsTable from '../../../components/prop-tables/TableOptionsTable';
+import StateOptionsTable from '../../../components/prop-tables/StateOptionsTable';
+
+<Head>
+  <title>Full Screen Toggle Feature Guide - Mantine React Table Docs</title>
+  <meta
+    name="description"
+    content="How to use, customize, or disable the full screen toggle button feature of Mantine React Table"
+  />
+</Head>
+
+## Full Screen Toggle Feature Guide
+
+### Relevant Table Options
+
+<TableOptionsTable
+  onlyOptions={new Set(['enableFullScreenToggle', 'onIsFullScreenChange'])}
+/>
+
+### Relevant State
+
+<StateOptionsTable onlyOptions={new Set(['isFullScreen'])} />
+
+### Disable Full Screen Toggle
+
+The full screen toggle button is enabled by default. You can hide it by setting the `enableFullScreenToggle` table option to `false`.
+
+```jsx
+const table = useMantineReactTable({
+  columns,
+  data,
+  enableFullScreenToggle: false,
+});
+```

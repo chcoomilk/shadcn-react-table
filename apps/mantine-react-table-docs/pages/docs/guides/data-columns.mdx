@@ -1,0 +1,302 @@
+import Head from 'next/head';
+import AlignmentExample from '../../../examples/column-alignment';
+
+<Head>
+  <title>{'Data (Accessor) Columns - Mantine React Table V2 Docs'}</title>
+  <meta
+    name="description"
+    content="How to create data columns in Mantine React Table and use accessKeys and accessorFns the right way"
+  />
+</Head>
+
+## Data (Accessor) Columns
+
+Data columns are used to display data and are the default columns that are created when you create a column with an `accessorKey` or `accessorFn`.
+
+The table can perform processing on the data of a data column, such as sorting, filtering, grouping, etc.
+
+The other type of column that you can make is a display column, which you can learn more about in the [next section](/docs/guides/display-columns).
+
+### Accessors (Connect a column to data)
+
+Each column definition must have at least an `accessorKey` (or a combination of an `id` and `accessorFn`) and a `header` property. The `accessorKey`/`accessorFn` property is the key that will be used to join the data from the `data` keys. The `header` property is used to display the column header, but is also used in other places in the table.
+
+> Note: Do NOT have your accessors resolve JSX or markup. That's what custom [`Cell`](#custom-cell-render) renders are for. Accessors should only return primitive data so that the table can sort, filter, search, and group properly.
+
+#### Method 1 - Using an accessorKey (Recommended)
+
+The simplest and most common way to define a column is to use the `accessorKey` property. The `accessorKey` property is the key that will be used to join the data from the `data` keys.
+
+The `accessorKey` must match one of the keys in your data, or else no data will show up in the column. The `accessorKey` also supports dot notation, so you can access nested data.
+
+By default, the `accessorKey` will double as the `id` for the column, but if you need the id of the column to be different than the accessorKey, you can use the `id` property in addition.
+
+```tsx
+const columns = useMemo<MRT_ColumnDef<Customer>[]>( //TS helps with the autocomplete while writing columns
+  () => [
+    {
+      accessorKey: 'username', //normal recommended usage of an accessorKey
+      header: 'Username',
+    },
+    {
+      accessorKey: 'name.firstName', //example of dot notation used to access nested data
+      header: 'First Name',
+    },
+    {
+      accessorKey: 'name.lastName', //example of dot notation used to access nested data
+      header: 'Last Name',
+    },
+    {
+      accessorKey: 'customerAge',
+      id: 'age' //id overridden, usually not necessary to do this, but can be helpful
+      header: 'Age',
+    },
+  ],
+  [],
+);
+```
+
+#### Method 2 - Using an accessorFn and id
+
+You can alternatively use the `accessorFn` property. Here are at least three ways you can use it.
+
+In each case, the `id` property is now required since there is no `accessorKey` for MRT to derive it from.
+
+```tsx
+const columns = useMemo<MRT_ColumnDef<Customer>[]>(
+  () => [
+    {
+      //simple accessorFn that works the same way as an `accessorKey`
+      accessorFn: (row) => row.username,
+      id: 'username',
+      header: 'Username',
+    },
+    {
+      //accessorFn function that combines multiple data together
+      accessorFn: (row) => `${row.firstName} ${row.lastName}`,
+      id: 'name',
+      header: 'Name',
+    },
+    {
+      //accessorFn used to access nested data, though you could just use dot notation in an accessorKey
+      accessorFn: (row) => row.personalInfo.age,
+      id: 'age',
+      header: 'Age',
+    },
+  ],
+  [],
+);
+```
+
+#### Method 3 - Using createMRTColumnHelper
+
+> New in V2 (After many requests)
+
+Alternatively you can use the `createMRTColumnHelper` utility function to define your columns definitions in a slightly more type-safe way. Instantiate a `columnHelper` by passing in your `TData` type as a generic argument. Then the first argument of the `columnHelper.accessor()` method can be either an `accessorKey` or an `accessorFn`. Then you can specify the rest of the column options as the second argument.
+
+```tsx
+const columnHelper = createMRTColumnHelper<Customer>();
+
+const columns = [
+  //accessorKey as first argument, rest of column options as second argument
+  columnHelper.accessor('name', {
+    header: 'Last Name',
+  }),
+  //accessorFn as first argument, rest of column options as second argument
+  columnHelper.accessor((row) => Number(row.age), {
+    header: 'Age',
+    id: 'age', //id is required when using accessorFn
+  }),
+];
+```
+
+### Custom Header Render
+
+If you want to pass in custom JSX to render the header, you can pass in a `Header` option in addition to the `header` string property.
+
+> The `header` (lowercase) property is still required and still must only be a string because it is used within multiple components in the table and has string manipulation methods performed on it.
+
+```tsx
+const columns = useMemo(
+  () => [
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      Header: ({ column }) => (
+        <i style={{ color: 'red' }}>{column.columnDef.header}</i>
+      ), //arrow function
+    },
+    {
+      accessorKey: 'age',
+      header: 'Age',
+      Header: <i style={{ color: 'red' }}>Age</i>, //plain jsx with no function
+    },
+  ],
+  [],
+);
+```
+
+### Custom Cell Render
+
+Similarly, the data cells in a column can have a custom JSX render with the `Cell` option.
+
+```tsx
+const columns = useMemo(
+  () => [
+    {
+      accessorKey: 'salary',
+      header: 'Salary',
+      Cell: ({ cell }) => (
+        <span>${cell.getValue<number>().toLocaleString()}</span>
+      ),
+    },
+    {
+      accessorKey: 'profileImage',
+      header: 'Profile Image',
+      Cell: ({ cell }) => <img src={cell.getValue<string>()} />,
+    },
+  ],
+  [],
+);
+```
+
+### Custom Footer Render
+
+If you want to pass in custom JSX to render the footer, you can pass in a `Footer` option. If no custom markup is needed, you can just use the `footer` string property.
+
+The footer cells can be a good place to put totals or other summary information.
+
+```tsx
+const columns = useMemo(
+  () => [
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      footer: 'Name', //simple string header
+    },
+    {
+      accessorKey: 'age',
+      header: 'Age',
+      //Custom footer markup for a aggregation calculation
+      Footer: () => (
+        <Stack>
+          Max Age:
+          <Box color="orange">{Math.round(maxAge)}</Box>
+        </Stack>
+      ),
+    },
+  ],
+  [],
+);
+```
+
+> See the [Customize Components Guide](/docs/guides/customize-components) for more ways to style and customize header and cell components.
+
+### Enable or Disable Features Per Column
+
+In the same way that you can pass props to the main `<MantineReactTable />` component to enable or disable features, you can also specify options on the column definitions to enable or disable features on a per-column basis.
+
+```tsx
+const columns = useMemo(
+  () => [
+    {
+      accessorKey: 'salary',
+      header: 'Salary',
+      enableClickToCopy: true, //enable click to copy on this column
+    },
+    {
+      accessorKey: 'profileImage',
+      header: 'Profile Image',
+      enableSorting: false, //disable sorting on this column
+    },
+  ],
+  [],
+);
+```
+
+> See all the column options you can use in the [Column Options API Reference](/docs/api/column-options).
+
+### Set Column Widths
+
+This topic is covered in detail in the [Column Resizing Guide](/docs/guides/column-resizing), but here is a brief overview.
+
+Setting a CSS (sx or style) width prop will NOT work. Mantine React Table (or, more accurately, TanStack Table) will keep track and set the widths of each column internally.
+
+You CAN, however, change the default width of any column by setting its `size` option on the column definition. `minSize` and `maxSize` are also available to set the minimum and maximum width of the column during resizing.
+
+```tsx
+const columns = [
+  {
+    accessorKey: 'id',
+    header: 'ID',
+    size: 50, //small column
+  },
+  {
+    accessorKey: 'username',
+    header: 'Username',
+    minSize: 100, //min size enforced during resizing
+    maxSize: 200, //max size enforced during resizing
+    size: 180, //medium column
+  },
+  {
+    accessorKey: 'email',
+    header: 'Email',
+    size: 300, //large column
+  },
+];
+```
+
+If exact column sizes are important to you, you may want to consider using one of the other `layoutModes` other than the default `"semantic"` layoutMode.
+
+#### Layout Modes
+
+Mantine React Table has 3 layout modes that affect how columns styles are applied internally. Depending on which features you enable, the `layoutMode` table option will automatically change to the appropriate value, though you can override it with your own value if you want.
+
+1. `"semantic"` (default with default features) - uses default css styles that come with `<table>`, `<tr>`, `<td>`, etc. elements.
+2. `"grid"` (default when virtualization is enabled) - uses CSS Grid and Flexbox styles instead of default styles.
+3. `"grid-no-grow"` (default when column resizing is enabled) - uses CSS Grid and Flexbox styles, but also sets `flex-grow: 0` on all columns and adds an empty "spacer" column to the end of the table to fill the potential remaining space.
+
+If you want your columns to have an absolute width, you can use the `"grid-no-grow"` layout mode and set the `size` option on each column.
+
+```tsx
+const table = useMantineReactTable({
+  columns,
+  data,
+  layoutMode: 'grid-no-grow', //absolute column widths that will NOT grow to fill remaining space
+});
+```
+
+> The `'grid-no-grow'` layoutMode is new in MRT V2.
+
+### Set Column Alignment
+
+By default, all columns are left-aligned. You can change the alignment of a column by setting the `align` option to either `"center"`, `"right"`, or `"justify"` in the `mantineTableHeadCellProps` and `mantineTableBodyCellProps` props/column options.
+
+```tsx
+const columns = [
+  {
+    accessorKey: 'id',
+    header: 'ID',
+    //right align the header and body cells
+    mantineTableHeadCellProps: {
+      align: 'right',
+    },
+    mantineTableBodyCellProps: {
+      align: 'right',
+    },
+  },
+  {
+    accessorKey: 'username',
+    header: 'Username',
+    //center align the header and body cells
+    mantineTableHeadCellProps: {
+      align: 'center',
+    },
+    mantineTableBodyCellProps: {
+      align: 'center',
+    },
+  },
+];
+```
+
+<AlignmentExample />

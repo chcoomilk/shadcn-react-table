@@ -1,0 +1,91 @@
+import Head from 'next/head';
+import TableOptionsTable from '../../../components/prop-tables/TableOptionsTable';
+import ColumnOptionsTable from '../../../components/prop-tables/ColumnOptionsTable';
+import DisableExample from '../../../examples/disable-column-actions';
+import CustomColumnActionsExample from '../../../examples/custom-column-actions';
+import ColumnActionsSpaceExample from '../../../examples/column-actions-space';
+
+<Head>
+  <title>Column Actions Feature Guide - Mantine React Table Docs</title>
+  <meta
+    name="description"
+    content="How to use, customize, or disable column the action button and menu features of Mantine React Table"
+  />
+</Head>
+
+## Column Actions Feature Guide
+
+By default, Mantine React Table renders a column actions button for each column header. It contains a drop-down menu to help your users use the other features of the table. All of these actions can be triggered in some other way other than from this drop-down menu, so this serves as a UI/UX alternative to make sure your users can find many of the table features easily.
+
+### Relevant Table Options
+
+<TableOptionsTable
+  onlyOptions={
+    new Set([
+      'enableColumnActions',
+      'mantineColumnActionsButtonProps',
+      'renderColumnActionsMenuItems',
+    ])
+  }
+/>
+
+### Relevant Column Options
+
+<ColumnOptionsTable
+  onlyOptions={
+    new Set([
+      'enableColumnActions',
+      'mantineColumnActionsButtonProps',
+      'renderColumnActionsMenuItems',
+    ])
+  }
+/>
+
+### Disable or Hide Column Actions Buttons
+
+You can set the `enableColumnActions` table option to `false` to disable this feature and hide the button in each column header completely.
+
+```jsx
+const table = useMantineReactTable({
+  data,
+  columns,
+  enableColumnActions: false,
+});
+```
+
+Alternatively, if you only want to hide the column actions button in specific columns, you can set the `enableColumnActions` column option to `false` instead.
+
+In this demo, we disable the column actions button for the 'ID' column.
+
+<DisableExample />
+
+### Custom Column Actions Menu
+
+If you do not like the default column actions menu items that Mantine React Table generates, you can provide your own custom menu items with the `renderColumnActionsMenuItems` option.
+
+```jsx
+const table = useMantineReactTable({
+  data,
+  columns,
+  renderColumnActionsMenuItems: ({ internalColumnMenuItems }) => (
+    <>
+      {internalColumnMenuItems} //optionally include the default menu items
+      <Divider />
+      <Menu.Item>Item 1</Menu.Item>
+      <Menu.Item>Item 2</Menu.Item>
+    </>
+  ),
+});
+
+return <MantineReactTable table={table} />;
+```
+
+<CustomColumnActionsExample />
+
+### Justify Column Actions Button
+
+By default, the column actions button is left aligned directly after the column header text and any sort or filter labels that may be present. If you want to change this, you can use a CSS selector in `mantineTableHeadCellProps` to change the `justify-content` property of the column header container.
+
+<ColumnActionsSpaceExample />
+
+View Extra Storybook **[Examples](https://www.mantine-react-table.dev/?path=/story/features-column-action-examples)**

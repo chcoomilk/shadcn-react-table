@@ -1,0 +1,65 @@
+import Head from 'next/head';
+import TableOptionsTable from '../../../components/prop-tables/TableOptionsTable';
+import ColumnOptionsTable from '../../../components/prop-tables/ColumnOptionsTable';
+import StateOptionsTable from '../../../components/prop-tables/StateOptionsTable';
+import Example from '../../../examples/enable-column-pinning';
+
+<Head>
+  <title>Column Pinning Feature Guide - Mantine React Table Docs</title>
+  <meta
+    name="description"
+    content="How to use and customize the column pinning features of Mantine React Table"
+  />
+</Head>
+
+## Column Pinning Feature Guide
+
+Column pinning is a cool feature that lets users pin (freeze) columns to the left or right of the table. Pinned columns will not scroll horizontally with the rest of the columns so that they always stay visible to the user.
+
+### Relevant Table Options
+
+<TableOptionsTable
+  onlyOptions={new Set(['enableColumnPinning', 'onColumnPinningChange'])}
+/>
+
+### Relevant Column Options
+
+<ColumnOptionsTable onlyOptions={new Set(['enableColumnPinning'])} />
+
+### Relevant State
+
+<StateOptionsTable onlyOptions={new Set(['columnPinning'])} />
+
+### Enable Column Pinning
+
+Column pinning can simply be enabled by setting the `enableColumnPinning` table option to `true`.
+
+```jsx
+const table = useMantineReactTable({
+  data,
+  columns,
+  enableColumnPinning: true,
+});
+```
+
+### Pin (Freeze) Columns By Default
+
+Columns can start out pinned in your table by setting the `columnPinning` states in either `initialState` or `state`.
+
+```jsx
+const table = useMantineReactTable({
+  data,
+  columns,
+  enableColumnPinning: true,
+  initialState: {
+    columnPinning: {
+      left: ['email'], //pin email column to left by default
+      right: ['mrt-row-actions'], //pin built-in row actions display column to right by default
+    },
+  },
+});
+```
+
+#### Column Pinning Example
+
+<Example />

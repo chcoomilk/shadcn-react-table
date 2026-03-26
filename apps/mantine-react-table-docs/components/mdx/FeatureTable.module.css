@@ -1,0 +1,13 @@
+.mantineReactTable {
+  width: 100%;
+  border-collapse: collapse;
+  caption-side: top;
+  @mixin dark {
+    color: var(--mantine-color-white);
+  }
+  @mixin light {
+    color: var(--mantine-color-black);
+  }
+  line-height: 1.55;
+  display: table;
+}

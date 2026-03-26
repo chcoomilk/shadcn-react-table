@@ -1,0 +1,91 @@
+import Head from 'next/head';
+import TableOptionsTable from '../../../components/prop-tables/TableOptionsTable';
+import StateOptionsTable from '../../../components/prop-tables/StateOptionsTable';
+import LoadingExample from '../../../examples/loading';
+import ProgressExample from '../../../examples/progress';
+import ReactQueryExample from '../../../examples/react-query';
+
+<Head>
+  <title>Async Loading Feature Guide - Mantine React Table Docs</title>
+  <meta
+    name="description"
+    content="How to show loading indicators, skeletons, and progress bars in Mantine React Table"
+  />
+</Head>
+
+## Async Loading Feature Guide
+
+While you are fetching your data, you may want to show some loading indicators. Mantine React Table has some nice loading UI features built in that look better than a simple spinner.
+
+> This guide is mostly focused on the loading UI features. Make sure to also check out the [Remote Data](/docs/examples/remote) and [React Query](/docs/examples/react-query) examples for server-side logic examples.
+
+### Relevant Table Options
+
+<TableOptionsTable
+  onlyOptions={
+    new Set([
+      'mantineLoadingOverlayProps',
+      'mantineProgressProps',
+      'mantineSkeletonProps',
+    ])
+  }
+/>
+
+### Relevant State Options
+
+<StateOptionsTable
+  onlyOptions={
+    new Set([
+      'isLoading',
+      'isSaving',
+      'showSkeletons',
+      'showProgressBars',
+      'showLoadingOverlay',
+    ])
+  }
+/>
+
+### isLoading UI
+
+Rather than coding your own spinner or loading indicator, you can simply set the `isLoading` state to `true`, and Mantine React Table will show a loading overlay with cell skeletons for you. The number of rows that get generated are the same as your `initialState.pagination.pageSize` option.
+
+```jsx
+const table = useMantineReactTable({
+  columns,
+  data, //should fallback to empty array while loading data
+  state: { isLoading: true },
+});
+```
+
+<LoadingExample />
+
+#### Show Loading Overlay, Skeletons, or Progress Bars Individually
+
+{/* If you do not want both progress bars and cell skeletons to show, you can use the `showProgressBars` and `showSkeletons` states, instead. */}
+
+You can control whether the loading overlay, skeletons, or progress bars show individually by setting the `showLoadingOverlay`, `showSkeletons`, and `showProgressBars` states to `true`.
+
+```jsx
+const table = useMantineReactTable({
+  columns,
+  data: data ?? [],
+  state: {
+    //using react-query terminology as an example here
+    showLoadingOverlay: isFetching && isPreviousData, //fetching next page pagination
+    showSkeletons: isLoading, //loading for the first time with no data
+    showProgressBars: isSavingUser, //from a mutation
+  },
+});
+```
+
+### Customize Loading Components
+
+You can customize the loading overlay, skeletons, and progress bars by passing props to the `mantineLoadingOverlayProps`, `mantineSkeletonProps`, and `mantineProgressProps` table options.
+
+<ProgressExample />
+
+### Full Loading and Server-Side Logic Example
+
+Here is a copy of the full [React Query](/docs/examples/react-query) example.
+
+<ReactQueryExample />

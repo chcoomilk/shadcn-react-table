@@ -1,0 +1,54 @@
+import Head from 'next/head';
+import TableOptionsTable from '../../../components/prop-tables/TableOptionsTable';
+import StateOptionsTable from '../../../components/prop-tables/StateOptionsTable';
+import DisableExample from '../../../examples/disable-density-toggle';
+
+<Head>
+  <title>Density Toggle Feature Guide - Mantine React Table Docs</title>
+  <meta
+    name="description"
+    content="How to use, customize, or disable the density toggle button feature of Mantine React Table"
+  />
+</Head>
+
+## Density Toggle Feature Guide
+
+Mantine React Table includes a density toggle button in the top toolbar by default where a user can toggle between 3 different density levels. This is a great feature to include to help with accessibility for different user preferences, but it can easily be disabled if it is not wanted.
+
+### Relevant Table Options
+
+<TableOptionsTable
+  onlyOptions={new Set(['enableDensityToggle', 'onDensityChange'])}
+/>
+
+### Relevant State
+
+<StateOptionsTable onlyOptions={new Set(['density'])} />
+
+### Default Density
+
+By default, Mantine React Table will render with a medium `md` density.
+
+A density toggle is shown by default to let a user change the density to cycle through `xl`, `md`, and `xs` densities.
+
+> When a `xs` density is set, whitespace is set to `nowrap` by default to keep the rows as short in height as possible. This can be overridden in the `mantineTableBodyCellProps` styles or sx prop.
+
+#### Change Default Density
+
+If you want to change the default density, you can set that in either the `initialState` or `state` table option.
+
+```jsx
+const table = useMantineReactTable({
+  data,
+  columns,
+  initialState: { density: 'xs' },
+});
+```
+
+### Disable or Hide the Density Toggle
+
+You can change the default density, and disable the density toggle itself if you want.
+
+In this example, the density toggle is disabled and a `xs` density is set by default in the `initialState` prop.
+
+<DisableExample />
